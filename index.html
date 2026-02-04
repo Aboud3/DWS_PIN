@@ -1,0 +1,2929 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mitarbeiter Check In / Check Out</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e5e7eb;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      border: 1px solid #c8ccd1;
+      position: relative;
+    }
+
+    #adminLoginBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #444;
+      color: #fff;
+      padding: 7px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 1.6rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin: 22px 0 26px 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #222;
+      padding: 14px 20px;
+      background: #BDBDBD;
+      border-radius: 10px;
+      border: 1px solid #a7a7a7;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+
+    .top-row button {
+      align-self: flex-end;
+      margin-bottom: 5px;
+    }
+
+    .top-row .field-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #222;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    select {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      font-size: 1.0rem;
+      background: #ffffff;
+    }
+
+    input[type="text"] {
+      min-width: 160px;
+      margin-top: 5px;
+    }
+
+    button {
+      padding: 9px 18px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    #checkInBtn { background: #1e7a34; color: #fff; }
+    #checkOutBtn { background: #b32d2d; color: #fff; }
+    #pauseBtn { background: #f59e0b; color: #fff; }
+    #resumeBtn { background: #6b7280; color: #fff; }
+    #exportBtn, #exportYearBtn, #changePasswordBtn, #adminDateApplyBtn, #addAbsenceBtn, #saveEmpTypeBtn, #addNewEmployeeBtn, #csvImportBtn, #renameEmployeeBtn {
+      background: #1f4fcc;
+      color: #fff;
+    }
+
+    .table-box {
+      margin-top: 15px;
+      border: 1px solid #a7a7a7;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #BDBDBD;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #a7a7a7;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    th {
+      background: #BDBDBD;
+      color: #222;
+      font-weight: 600;
+    }
+
+    td {
+      background: #f9fafb;
+      color: #222;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 12px;
+      color: #444;
+      background: #f9fafb;
+    }
+
+    .action-btn {
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      background: #e5e7eb;
+      border: none;
+    }
+
+    .action-delete { background: #fca5a5; }
+
+    .missing-checkout td {
+      background-color: #ffe5e5;
+    }
+
+    .admin-panel {
+      margin-top: 24px;
+      padding: 16px 18px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      background: #C9C5C5;
+    }
+
+    .admin-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .admin-block {
+      margin-bottom: 16px;
+    }
+
+    .admin-block-title {
+      font-weight: 700;
+      color: #222;
+      margin: 6px 0 6px;
+    }
+
+    .admin-grid-2 {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr);
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    .admin-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 160px;
+    }
+
+    .admin-field {
+      min-width: 160px;
+      flex: 1 1 160px;
+    }
+
+    .admin-label-spacer {
+      display: block;
+      height: 1.1rem;
+    }
+
+    .rename-compact select,
+    .rename-compact input {
+      width: auto;
+      max-width: 100%;
+      height: 44px;
+      min-height: 44px;
+      padding: 10px 12px;
+      box-sizing: border-box;
+      font-size: inherit;
+    }
+
+    .rename-compact button {
+      width: auto;
+      min-width: 160px;
+    }
+
+    .rename-compact .rename-last-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      flex: 1 1 auto;
+    }
+
+    .rename-compact .rename-last-row input {
+      flex: 1 1 220px;
+      min-width: 180px;
+    }
+
+    @media (max-width: 720px) {
+      .admin-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    #monthSummary {
+      font-size: 0.95rem;
+      margin-top: 8px;
+      color: #333;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #d1d5db;
+      margin: 14px 0;
+    }
+
+    .admin-only {
+      display: none;
+    }
+    .admin-mode .admin-only {
+      display: table-cell;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <button id="adminLoginBtn">Admin-Login</button>
+    <h1>Mitarbeiter Check In / Check Out</h1>
+
+    <div class="info-row">
+      <div>Heute: <span id="todayLabel"></span></div>
+      <div>Uhrzeit: <span id="timeLabel"></span></div>
+    </div>
+
+    <div class="top-row">
+      <div class="field-group">
+        <label for="firstName">Vorname:</label>
+        <input id="firstName" type="text">
+      </div>
+      <div class="field-group">
+        <label for="lastName">Nachname:</label>
+        <input id="lastName" type="text">
+      </div>
+    </div>
+
+    <div class="top-row">
+      <div class="field-group">
+        <label for="employeeQuickSelect">Mitarbeiter schnell auswählen:</label>
+        <select id="employeeQuickSelect">
+          <option value="">Mitarbeiter auswählen</option>
+        </select>
+      </div>
+
+      <button id="checkInBtn">Check In</button>
+      <button id="checkOutBtn">Check Out</button>
+      <button id="pauseBtn">Pause</button>
+      <button id="resumeBtn">Fortsetzen</button>
+    </div>
+
+    <h2 id="recordsTitle" style="font-size:1.1rem; margin-top:10px;">
+      Heutige Einträge
+    </h2>
+
+    <div class="table-box">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Mitarbeiter</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+            <th>Stunden über 8 (Std.)</th>
+            <th>Arbeitszeit (Std.)</th>
+            <th>Krank (Tage)</th>
+            <th>Urlaub (Tage)</th>
+            <th class="admin-only">Aktionen</th>
+          </tr>
+        </thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+    </div>
+
+    <div id="employeeMonthlyPanel" class="admin-panel" style="background:#ffffff; border:1px solid #d1d5db; margin-top:18px;">
+      <h3 style="margin-top:0;">Meine Monatsübersicht</h3>
+      <div class="admin-row">
+        
+        <div id="employeeMonthlyLoginRow" class="admin-row" style="margin-bottom:10px;">
+          <label for="employeeLoginSelect">Mitarbeiter:</label>
+          <select id="employeeLoginSelect" style="width:220px;">
+            <option value="">Mitarbeiter auswählen</option>
+          </select>
+
+          <label for="employeePinInput">PIN:</label>
+          <input id="employeePinInput" type="password" inputmode="numeric" autocomplete="off" style="width:140px;" placeholder="z. B. 1234">
+
+          <button id="employeeLoginBtn" style="background:#111827; color:#fff;">Login</button>
+          <button id="employeeLogoutBtn" style="background:#6b7280; color:#fff; display:none;">Logout</button>
+
+          <span id="employeeLoggedInAs" style="font-weight:600; color:#111; margin-left:6px;"></span>
+        </div>
+
+        <label for="monthlyMonthSelect">Monat:</label>
+        <select id="monthlyMonthSelect" style="width:160px;">
+          <option value="">Monat auswählen</option>
+        </select>
+
+        <label for="monthlyYearSelect">Jahr:</label>
+        <select id="monthlyYearSelect" style="width:110px;">
+          <option value="">Jahr auswählen</option>
+        </select>
+
+        <button id="viewMonthlyBtn">Anzeigen</button>
+        <button id="downloadMonthlyCsvBtn" style="background:hwb(215 42% 8%);">Herunterladen</button>
+      </div>
+      <div id="monthlyRecordsSummary" style="font-size:0.95rem; color:#333; margin-top:8px;"></div>
+      <div class="table-box" style="margin-top:10px; background:#BDBDBD;">
+        <table>
+          <thead>
+            <tr>
+              <th>Datum</th>
+              <th>Typ</th>
+              <th>Check In</th>
+              <th>Check Out</th>
+              <th>Stunden über 8 (Std.)</th>
+              <th>Arbeitszeit (Std.)</th>
+              <th>Krank (Tage)</th>
+              <th>Urlaub (Tage)</th>
+            </tr>
+          </thead>
+          <tbody id="monthlyRecordsBody">
+            <tr><td class="empty" colspan="8">Anmelden, Monat und Jahr auswählen, dann auf „Anzeigen“ klicken.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="adminPanel" class="admin-panel" style="display:none;">
+      <h3>Admin-Bereich</h3>
+
+      <div class="admin-row">
+        <label for="adminDate">Datum:</label>
+        <input type="date" id="adminDate">
+        <button id="adminDateApplyBtn">Übernehmen</button>
+      </div>
+
+      <hr>
+
+      <h3>Abwesenheit hinzufügen</h3>
+      <div class="admin-row">
+        <label for="absenceEmployeeSelect">Mitarbeiter:</label>
+        <select id="absenceEmployeeSelect">
+          <option value="">Mitarbeiter auswählen</option>
+        </select>
+
+
+        <label for="absenceType">Art:</label>
+        <select id="absenceType">
+          <option value="sick">Krank</option>
+          <option value="holiday">Urlaub</option>
+        </select>
+
+        <label for="absenceDuration">Tage:</label>
+        <input type="number" id="absenceDuration" min="0" step="0.25" style="width:120px;" placeholder="z. B. 1 oder 0,5">
+
+        <button id="addAbsenceBtn">Hinzufügen</button>
+      </div>
+
+      <hr>
+
+      <h3>Mitarbeiterverwaltung</h3>
+      <div class="admin-block">
+        <div class="admin-block-title">Neuer Mitarbeiter</div>
+        <div class="admin-row">
+          <input id="newEmpFirstName" class="admin-field" type="text" placeholder="Vorname">
+          <input id="newEmpLastName" class="admin-field" type="text" placeholder="Nachname">
+          <button id="addNewEmployeeBtn">Hinzufügen</button>
+        </div>
+      </div>
+
+      <div class="admin-block">
+        <div class="admin-block-title">Beschäftigungsart</div>
+        <div class="admin-row">
+          <label for="empTypeEmployee">Mitarbeiter</label>
+          <select id="empTypeEmployee" class="admin-field">
+            <option value="">Mitarbeiter auswählen</option>
+          </select>
+
+          <label for="empTypeSelect">Typ</label>
+          <select id="empTypeSelect" class="admin-field">
+            <option value="unassigned">Nicht zugewiesen</option>
+            <option value="full_time">Vollzeit</option>
+            <option value="part_time">Teilzeit</option>
+          </select>
+
+          <button id="saveEmpTypeBtn">Speichern</button>
+        </div>
+      </div>
+
+      <div class="admin-block rename-block">
+        <div class="admin-block-title">Mitarbeiter umbenennen</div>
+        <div class="rename-compact">
+          <div class="admin-row">
+            <label for="renameFromEmployee">Mitarbeiter</label>
+            <select id="renameFromEmployee">
+              <option value="">Mitarbeiter auswählen</option>
+            </select>
+
+            <label for="renameNewFirst">Neuer Vorname</label>
+            <input id="renameNewFirst" type="text">
+          </div>
+
+          <div class="admin-row">
+            <label for="renameNewLast">Neuer Nachname</label>
+            <div class="rename-last-row">
+              <input id="renameNewLast" type="text">
+              <button id="renameEmployeeBtn">Umbenennen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <h3>PINs für Monatsansicht (Mitarbeiter) &amp; Check In / Check Out</h3>
+      <div class="admin-row">
+        <label for="pinEmployeeSelect">Mitarbeiter:</label>
+        <select id="pinEmployeeSelect">
+          <option value="">Mitarbeiter auswählen</option>
+        </select>
+
+        <label for="pinValueInput">PIN:</label>
+        <input id="pinValueInput" type="password" inputmode="numeric" autocomplete="off" style="width:140px;" placeholder="z. B. 1234">
+
+        <button id="savePinBtn" style="background:#1f4fcc; color:#fff;">PIN speichern</button>
+        <button id="clearPinBtn" style="background:#b32d2d; color:#fff;">PIN entfernen</button>
+        <span style="font-size:0.9rem; color:#333;">(Erforderlich für „Meine Monatsübersicht“)</span>
+      </div>
+
+      <hr>
+
+      <div class="admin-row">
+        <label for="adminEmployeeFilter">Mitarbeiterfilter:</label>
+        <select id="adminEmployeeFilter">
+          <option value="">Alle Mitarbeiter</option>
+        </select>
+      </div>
+
+      <div class="admin-row">
+        <label for="adminTypeFilter">Filter Beschäftigungsart:</label>
+        <select id="adminTypeFilter">
+          <option value="">Alle Arten</option>
+          <option value="full_time">Vollzeit</option>
+          <option value="part_time">Teilzeit</option>
+          <option value="unassigned">Nicht zugewiesen</option>
+        </select>
+      </div>
+
+      <div class="admin-row">
+        <label for="monthSelect">Monat:</label>
+        <select id="monthSelect">
+          <option value="1">Januar</option>
+          <option value="2">Februar</option>
+          <option value="3">März</option>
+          <option value="4">April</option>
+          <option value="5">Mai</option>
+          <option value="6">Juni</option>
+          <option value="7">Juli</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">Oktober</option>
+          <option value="11">November</option>
+          <option value="12">Dezember</option>
+        </select>
+
+        <label for="monthYearInput">Jahr:</label>
+        <input type="number" id="monthYearInput" min="2000" max="2100" style="width:100px;">
+
+        <label>
+          <input type="checkbox" id="exportSelectedOnly">
+          Nur ausgewählten Mitarbeiter exportieren
+        </label>
+
+        <button id="exportBtn">Monats-CSV herunterladen</button>
+      </div>
+
+      <div class="admin-row">
+        <label for="yearInput">Jahr:</label>
+        <input type="number" id="yearInput" min="2000" max="2100" style="width:100px;">
+        <button id="exportYearBtn">Jahres-CSV herunterladen</button>
+      </div>
+
+      <div id="monthSummary"></div>
+
+      <hr>
+
+      <h3>CSV Import</h3>
+      <div class="admin-row">
+        <input type="file" id="csvImportFile" accept=".csv,text/csv">
+        <button id="csvImportBtn">CSV importieren</button>
+      </div>
+
+      <hr>
+
+      <h3>Passwort ändern</h3>
+      <div class="admin-row">
+        <label for="oldPassword">Altes Passwort:</label>
+        <input type="password" id="oldPassword">
+      </div>
+      <div class="admin-row">
+        <label for="newPassword">Neues Passwort:</label>
+        <input type="password" id="newPassword">
+      </div>
+      <div class="admin-row">
+        <button id="changePasswordBtn">Passwort ändern</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+const STORAGE_KEY = "timeTrackerRecords_v1";
+const PASSWORD_KEY = "timeTrackerAdminPassword_v1";
+const EMPLOYEES_KEY = "timeTrackerEmployees_v1";
+const EMP_PINS_KEY = "timeTrackerEmployeePins_v1"; // { "Full Name": "PIN" }
+const EMP_SESSION_KEY = "timeTrackerEmployeeSession_v1"; // sessionStorage
+const DEFAULT_PASSWORD = "1234";
+
+/* ===========================
+   Supabase (DB) mirror storage
+   - Keeps EVERYTHING else the same.
+   - LocalStorage remains the primary source of truth for the UI.
+   - Every create/update/delete will ALSO be mirrored to Supabase (best-effort).
+   - If Supabase is unreachable, operations are queued and retried later.
+   SECURITY NOTE:
+   - This uses the PUBLIC anon key in the browser. To allow inserts from a public site,
+     your table policies must allow anon inserts/updates (see SQL section I give you).
+   =========================== */
+
+const SUPABASE_PROJECT_URL = "https://myobzzydnqvzyjiodmae.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_ziLl_R6c1vRbVa1H9e5SBA_LNo_A3Ff"; // Settings -> API -> anon public
+const SUPABASE_TABLE = "time_records_public_v1"; // table name to create in Supabase
+
+const SUPABASE_REST_BASE = `${SUPABASE_PROJECT_URL}/rest/v1/${SUPABASE_TABLE}`;
+const SUPABASE_HEADERS = () => ({
+  "Content-Type": "application/json",
+  // With the new Supabase API keys model, the publishable (client) key is NOT a JWT.
+  // Do NOT send it as Authorization. Send it only as `apikey`.
+  "apikey": SUPABASE_ANON_KEY,
+  "Prefer": "resolution=merge-duplicates,return=minimal"
+});
+
+// Pending queue (for offline / network errors)
+const SUPABASE_PENDING_KEY = "timeTrackerSupabasePending_v1"; // localStorage queue
+
+function loadSupabasePending() {
+  try {
+    const raw = localStorage.getItem(SUPABASE_PENDING_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSupabasePending(arr) {
+  localStorage.setItem(SUPABASE_PENDING_KEY, JSON.stringify(Array.isArray(arr) ? arr : []));
+}
+
+function enqueueSupabaseOp(op) {
+  const q = loadSupabasePending();
+  q.push({ ...op, queuedAt: new Date().toISOString() });
+  saveSupabasePending(q);
+}
+
+// Map your local record shape -> DB row
+function toDbRow(r) {
+  const fullName = (r.fullName || r.name || "").trim();
+  return {
+    id: Number(r.id), // we use your existing Date.now() id
+    full_name: fullName,
+        // NEW: mirror extra fields to Supabase (does not affect UI/localStorage)
+    // NEW: derive employment_type using the RAW name (without "(Full-time)" / "(Part-time)")
+employment_type: (() => {
+  const baseName = String(fullName || "")
+    .replace(/\s*\((full[- ]?time|part[- ]?time)\)\s*$/i, "")
+    .trim();
+
+  if (typeof getEmployeeType !== "function") return null;
+
+  const t = getEmployeeType(baseName);
+
+  // normalize possible label variants to DB-friendly values
+  if (t === "full_time" || t === "part_time") return t;
+  if (String(t).toLowerCase().includes("full")) return "full_time";
+  if (String(t).toLowerCase().includes("part")) return "part_time";
+  if (t === "unassigned") return null;
+
+  return null;
+})(),
+
+    hours_above_8: (() => {
+      const entryType = (r.entryType || "work");
+      if (entryType !== "work") return 0;
+      const h = Number(r.totalHours);
+      if (!isFinite(h) || h <= 8) return 0;
+      return h - 8;
+    })(),
+first_name: (r.firstName || "").trim(),
+    last_name: (r.lastName || "").trim(),
+    date: (r.date || "").trim(),
+    entry_type: (r.entryType || "work"),
+    check_in: r.checkIn || null,
+    check_out: r.checkOut || null,
+    check_in_time: r.checkInTime || null,
+    check_out_time: r.checkOutTime || null,
+    total_hours: (r.totalHours === null || r.totalHours === undefined) ? null : Number(r.totalHours),
+    absence_days: (r.absenceDays === null || r.absenceDays === undefined) ? null : Number(r.absenceDays),
+    // NEW: mirror Sick/Holiday separately in Supabase (UI stays the same)
+    sick_days: ((r.entryType || "work") === "sick") ? (Number(r.absenceDays || 0) || 0) : 0,
+    holiday_days: ((r.entryType || "work") === "holiday") ? (Number(r.absenceDays || 0) || 0) : 0,
+    worked_millis: (r.workedMillis === null || r.workedMillis === undefined) ? null : Number(r.workedMillis),
+    last_start: r.lastStart || null,
+    is_paused: !!r.isPaused,
+    updated_at: new Date().toISOString()
+  };
+}
+
+async function supabaseUpsertRecord(r) {
+  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("PASTE_YOUR")) {
+    // Don't break the app if not configured yet.
+    return;
+  }
+  const row = toDbRow(r);
+
+  const res = await fetch(SUPABASE_REST_BASE + "?on_conflict=id", {
+    method: "POST",
+    headers: SUPABASE_HEADERS(),
+    body: JSON.stringify([row])
+  });
+
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(txt || `Supabase upsert failed (${res.status})`);
+  }
+}
+
+async function supabaseDeleteRecord(id) {
+  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("PASTE_YOUR")) return;
+
+  const res = await fetch(SUPABASE_REST_BASE + `?id=eq.${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: { "apikey": SUPABASE_ANON_KEY } });
+
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(txt || `Supabase delete failed (${res.status})`);
+  }
+}
+
+// Best-effort: try now, else queue
+function mirrorUpsertToSupabase(record) {
+  supabaseUpsertRecord(record).catch(() => {
+    enqueueSupabaseOp({ type: "upsert", record });
+  });
+}
+
+function mirrorDeleteToSupabase(id) {
+  supabaseDeleteRecord(id).catch(() => {
+    enqueueSupabaseOp({ type: "delete", id });
+  });
+}
+
+// Retry queue periodically
+async function flushSupabaseQueue() {
+  const q = loadSupabasePending();
+  if (!q.length) return;
+
+  const remaining = [];
+  for (const item of q) {
+    if (item.type === "full_sync") {
+      try { await mirrorFullSyncToSupabase(); }
+      catch { remaining.push(item); }
+      continue;
+    }
+    try {
+      if (item.type === "upsert" && item.record) {
+        await supabaseUpsertRecord(item.record);
+      } else if (item.type === "delete" && item.id) {
+        await supabaseDeleteRecord(item.id);
+      } else {
+        // Unknown item; drop it
+      }
+    } catch {
+      remaining.push(item);
+    }
+  }
+
+  saveSupabasePending(remaining);
+}
+
+// Flush on load + every 30s + when regaining network
+window.addEventListener("online", () => { if (SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("PASTE_YOUR")) flushSupabaseQueue(); });
+setInterval(() => { if (SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("PASTE_YOUR")) flushSupabaseQueue(); }, 30000);
+
+// One-time migration: after adding new DB columns (employment_type / hours_above_8 / sick_days / holiday_days),
+// run a single full sync so existing local records populate those fields in Supabase.
+const SUPABASE_MIGRATION_FLAG = "supabaseMirrorMigration_v2_fields";
+(async () => {
+  try {
+    if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("PASTE_YOUR")) return;
+    if (localStorage.getItem(SUPABASE_MIGRATION_FLAG) === "done") return;
+    await mirrorFullSyncToSupabase();
+    localStorage.setItem(SUPABASE_MIGRATION_FLAG, "done");
+  } catch {
+    // Ignore; normal queue/flush will retry later
+  }
+})();
+
+
+
+
+let records = [];
+let employees = {}; // { "Full Name": { type: "full_time"|"part_time"|"unassigned" } }
+let employeePins = {}; // { "Full Name": "PIN" } (simple local PINs)
+let isAdmin = false;
+let adminSelectedDate = null;
+
+const monthNames = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+
+const DEFAULT_EMPLOYEE_NAMES = [];
+const HOURS_PER_DAY = 8;
+
+// Option B support: absences are recorded in DAYS only.
+// For older stored data (where absences were saved as totalHours), we derive days from hours.
+function getAbsenceDays(r) {
+  const type = (r?.entryType || "work");
+  if (type !== "sick" && type !== "holiday") return 0;
+
+  const d = Number(r?.absenceDays);
+  if (isFinite(d) && d > 0) return d;
+
+  const h = Number(r?.totalHours);
+  if (isFinite(h) && h > 0) return h / HOURS_PER_DAY;
+
+  return 0;
+}
+
+/* Helper: escape values and build CSV line with quotes */
+function toCsvLine(fields) {
+  return fields
+    .map(v => {
+      const s = (v === null || v === undefined) ? "" : String(v);
+      const escaped = s.replace(/"/g, '""');
+      return `"${escaped}"`;
+    })
+    .join(",");
+}
+
+function hasValue(v) {
+  return v !== null && v !== undefined;
+}
+
+function hasTotalHours(r) {
+  return hasValue(r?.totalHours);
+}
+
+/* Helper: parse one CSV line (supports quoted values) */
+function parseCsvLine(line) {
+  const out = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === "," && !inQuotes) {
+      out.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  out.push(current);
+  return out;
+}
+
+function normalizeTimeString(value) {
+  const v = String(value || "").trim();
+  if (!v) return "";
+  const m = v.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return "";
+  const h = Number(m[1]);
+  const min = Number(m[2]);
+  if (!isFinite(h) || !isFinite(min) || h < 0 || h > 23 || min < 0 || min > 59) return "";
+  return String(h).padStart(2, "0") + ":" + String(min).padStart(2, "0");
+}
+
+function parseGermanDateToISO(value) {
+  const v = String(value || "").trim();
+  const m = v.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!m) return "";
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+
+function parseCsvFloat(value) {
+  const v = String(value || "").trim();
+  if (!v) return null;
+  const normalized = v.replace(/\s/g, "").replace(",", ".");
+  const n = parseFloat(normalized);
+  return isFinite(n) ? n : null;
+}
+
+function stableHash32(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  const unsigned = hash >>> 0;
+  return unsigned === 0 ? 1 : unsigned;
+}
+
+/* Date helpers */
+function formatDate(d) {
+  return d.toISOString().slice(0,10);
+}
+
+/* Keep existing date format function name */
+function formatDateDE(isoStr) {
+  if (!isoStr) return "";
+  const [y, m, d] = isoStr.split("-");
+  return `${d}.${m}.${y}`;
+}
+
+function formatTime(d) {
+  return d.toTimeString().slice(0,5);
+}
+
+function getStoredPassword() {
+  const saved = localStorage.getItem(PASSWORD_KEY);
+  return saved || DEFAULT_PASSWORD;
+}
+
+function setStoredPassword(pw) {
+  localStorage.setItem(PASSWORD_KEY, pw);
+}
+
+
+/* Employee monthly access PINs (simple privacy gate)
+   NOTE: This is not strong security (PINs are stored locally). For real privacy across devices,
+   you need a backend + authentication.
+*/
+function loadEmployeePins() {
+  const stored = localStorage.getItem(EMP_PINS_KEY);
+  if (!stored) {
+    employeePins = {};
+    return;
+  }
+  try {
+    const parsed = JSON.parse(stored);
+    employeePins = (parsed && typeof parsed === "object" && !Array.isArray(parsed)) ? parsed : {};
+  } catch {
+    employeePins = {};
+  }
+}
+
+function saveEmployeePins() {
+  localStorage.setItem(EMP_PINS_KEY, JSON.stringify(employeePins || {}));
+}
+
+function getEmployeePins() {
+  const stored = localStorage.getItem(EMP_PINS_KEY);
+  if (!stored) return {};
+  try {
+    const parsed = JSON.parse(stored);
+    return (parsed && typeof parsed === "object" && !Array.isArray(parsed)) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function normalizeFullName(name) {
+  return String(name || "").trim().replace(/\s+/g, " ");
+}
+
+function getEmployeePin(name) {
+  if (!name) return "";
+  const pins = getEmployeePins();
+  const v = pins?.[name];
+  return (typeof v === "string") ? v : "";
+}
+
+function validateEmployeePin(fullName) {
+  const n = normalizeFullName(fullName);
+  const expected = getEmployeePin(n);
+  if (!expected) { alert("Kein PIN für diesen Mitarbeiter gesetzt. Bitte Admin kontaktieren."); return false; }
+  const entered = prompt(`PIN für ${n}:`);
+  if (entered === null) return false;
+  if (String(entered).trim() !== String(expected)) { alert("Falscher PIN"); return false; }
+  return true;
+}
+
+function setEmployeePin(name, pin) {
+  if (!name) return;
+  const p = String(pin || "").trim();
+  if (!p) {
+    delete employeePins[name];
+  } else {
+    employeePins[name] = p;
+  }
+  saveEmployeePins();
+}
+
+function getLoggedInEmployeeName() {
+  const v = sessionStorage.getItem(EMP_SESSION_KEY) || "";
+  return String(v).trim();
+}
+
+function setLoggedInEmployeeName(name) {
+  if (!name) sessionStorage.removeItem(EMP_SESSION_KEY);
+  else sessionStorage.setItem(EMP_SESSION_KEY, name);
+}
+
+function isEmployeeLoggedIn() {
+  return !!getLoggedInEmployeeName();
+}
+
+/* Employees (Full-time / Part-time) */
+function loadEmployees() {
+  const stored = localStorage.getItem(EMPLOYEES_KEY);
+
+  // Crash-proof loading: if stored employee types data is corrupted,
+  // don't break the whole app. Start with an empty object instead.
+  if (!stored) {
+    employees = {};
+  } else {
+    try {
+      const parsed = JSON.parse(stored);
+      employees = (parsed && typeof parsed === "object" && !Array.isArray(parsed)) ? parsed : {};
+      if (!(parsed && typeof parsed === "object" && !Array.isArray(parsed))) {
+        alert("Saved employee type settings were in an unexpected format, so the app started with empty employee types.");
+      }
+    } catch (e) {
+      employees = {};
+      alert("Saved employee type settings appear to be corrupted, so the app started with empty employee types.");
+    }
+  }
+}
+
+function saveEmployees() {
+  localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(employees));
+}
+
+function normalizeEmpType(t) {
+  if (t === "full_time" || t === "part_time" || t === "unassigned") return t;
+  return "unassigned";
+}
+
+function getEmployeeType(name) {
+  if (!name) return "unassigned";
+  const t = employees?.[name]?.type;
+  return normalizeEmpType(t);
+}
+
+function getEmployeeTypeLabel(type) {
+  const t = normalizeEmpType(type);
+  if (t === "full_time") return "Vollzeit";
+  if (t === "part_time") return "Teilzeit";
+  return "Nicht zugewiesen";
+}
+
+// Display helper: show employment type next to name when assigned
+function getNameWithEmploymentType(name) {
+  const nm = (name || "").trim();
+  if (!nm) return "";
+  const t = getEmployeeType(nm);
+  if (t === "unassigned") return nm;
+  return `${nm} (${getEmployeeTypeLabel(t)})`;
+}
+
+// Parse "First Last" into {first,last} (best-effort; keeps remainder as last name)
+function splitFullName(fullName) {
+  const v = (fullName || "").trim();
+  if (!v) return { first: "", last: "" };
+  const parts = v.split(/\s+/);
+  const first = parts[0] || "";
+  const last = parts.slice(1).join(" ");
+  return { first, last };
+}
+
+
+function setEmployeeType(name, type) {
+  if (!name) return;
+  const t = normalizeEmpType(type);
+  employees[name] = employees[name] || {};
+  employees[name].type = t;
+  saveEmployees();
+}
+
+/* NEW: warn if exporting Alle Arten while some employees are Unassigned */
+function warnIfUnassignedInExport(recordList, contextLabel) {
+  const names = new Set();
+  (recordList || []).forEach(r => {
+    const nm = (r.fullName || r.name || "").trim();
+    if (!nm) return;
+    if (getEmployeeType(nm) === "unassigned") names.add(nm);
+  });
+
+  if (!names.size) return true;
+
+  const list = Array.from(names).sort((a,b)=>a.localeCompare(b));
+  const shown = list.slice(0, 10);
+  const moreCount = list.length - shown.length;
+
+  const msg =
+    `Warnung: You are exporting ALL employment types, but some employees are still Unassigned.\n\n` +
+    `Context: ${contextLabel}\n\n` +
+    `Unassigned employees:\n- ${shown.join("\n- ")}` +
+    (moreCount > 0 ? `\n...and ${moreCount} more` : "") +
+    `\n\nDo you want to continue exporting?`;
+
+  return confirm(msg);
+}
+
+/* Load records */
+function loadRecords() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+
+  // Crash-proof loading: if stored data is corrupted, start with an empty list
+  // instead of breaking the whole app.
+  if (!stored) {
+    records = [];
+  } else {
+    try {
+      const parsed = JSON.parse(stored);
+      records = Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) {
+        alert("Saved records were in an unexpected format, so the app started with an empty records list.");
+      }
+    } catch (e) {
+      records = [];
+      alert(
+        "Saved records could not be loaded (they look corrupted). The app started with an empty records list.\n\n" +
+        "Tip: If you have a recent CSV export, keep it safe as a backup."
+      );
+    }
+  }
+
+  let changed = false;
+  records.forEach(r => {
+    if (!r.fullName) {
+      const combined = [r.firstName, r.lastName].filter(Boolean).join(" ").trim();
+      if (combined) {
+        r.fullName = combined;
+        changed = true;
+      } else if (r.name) {
+        r.fullName = r.name;
+        changed = true;
+      } else {
+        r.fullName = "";
+      }
+    }
+    if (r.workedMillis === undefined) {
+      r.workedMillis = r.totalHours ? r.totalHours * 3600000 : 0;
+      changed = true;
+    }
+    if (r.isPaused === undefined) {
+      r.isPaused = false;
+      changed = true;
+    }
+    if (r.lastStart === undefined) {
+      r.lastStart = null;
+      changed = true;
+    }
+    if (r.entryType === undefined) {
+      r.entryType = "work"; // work | sick | holiday
+      changed = true;
+    }
+  });
+  if (changed) saveRecords();
+}
+
+function saveRecords() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
+
+function updateClock() {
+  const now = new Date();
+  const isoToday = formatDate(now);
+  document.getElementById("todayLabel").textContent = formatDateDE(isoToday);
+  document.getElementById("timeLabel").textContent = formatTime(now);
+}
+
+/* Name helpers */
+function getAllEmployeeNames() {
+  const set = new Set(DEFAULT_EMPLOYEE_NAMES);
+
+  records.forEach(r => {
+    const nm = r.fullName || r.name;
+    if (nm) set.add(nm);
+  });
+
+  Object.keys(employees || {}).forEach(nm => {
+    if (nm) set.add(nm);
+  });
+
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function updateAllEmployeeNameLists() {
+  const names = getAllEmployeeNames();
+
+  const fillSelect = (sel, { placeholder, keepValue = true } = {}) => {
+    if (!sel) return;
+    const current = keepValue ? sel.value : "";
+    sel.innerHTML = placeholder ? placeholder : "";
+    names.forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = getNameWithEmploymentType(name);
+      sel.appendChild(opt);
+    });
+    if (keepValue) sel.value = (current && names.includes(current)) ? current : "";
+  };
+
+  fillSelect(document.getElementById("adminEmployeeFilter"), {
+    placeholder: '<option value="">Alle Mitarbeiter</option>'
+  });
+
+  fillSelect(document.getElementById("employeeQuickSelect"), {
+    placeholder: '<option value="">Mitarbeiter auswählen</option>'
+  });
+
+  fillSelect(document.getElementById("empTypeEmployee"), {
+    placeholder: '<option value="">Mitarbeiter auswählen</option>'
+  });
+
+  // Add absence section (admin)
+  fillSelect(document.getElementById("absenceEmployeeSelect"), {
+    placeholder: '<option value="">Mitarbeiter auswählen</option>'
+  });
+
+  // Rename employee section (admin)
+  fillSelect(document.getElementById("renameFromEmployee"), {
+    placeholder: '<option value="">Mitarbeiter auswählen</option>'
+  });
+  // Monthly records panel uses employee login (no employee dropdown here)
+
+  // Employee monthly login (non-admin)
+  fillSelect(document.getElementById("employeeLoginSelect"), {
+    placeholder: '<option value="">Mitarbeiter auswählen</option>'
+  });
+
+  // Employee PIN admin management
+  fillSelect(document.getElementById("pinEmployeeSelect"), {
+    placeholder: '<option value="">Mitarbeiter auswählen</option>'
+  });
+
+}
+
+
+
+/* Helpers for open record (work only) */
+function findOpenRecord(fullName, dateISO) {
+  return [...records].reverse().find(
+    r =>
+      (r.fullName || r.name) === fullName &&
+      r.date === dateISO &&
+      !r.checkOutTime &&
+      (r.entryType || "work") === "work"
+  );
+}
+
+/* Visible records */
+function getVisibleRecords() {
+  const today = formatDate(new Date());
+  const target = isAdmin ? (adminSelectedDate || today) : today;
+
+  let dayRecords = records.filter(r => r.date === target);
+
+  if (isAdmin) {
+    const filterSelect = document.getElementById("adminEmployeeFilter");
+    const filterValue = filterSelect ? filterSelect.value : "";
+    if (filterValue) dayRecords = dayRecords.filter(r => (r.fullName || r.name) === filterValue);
+
+    const typeSelect = document.getElementById("adminTypeFilter");
+    const typeValue = typeSelect ? typeSelect.value : "";
+    if (typeValue) {
+      dayRecords = dayRecords.filter(r => {
+        const nm = (r.fullName || r.name || "");
+        return getEmployeeType(nm) === typeValue;
+      });
+    }
+  }
+
+  return dayRecords;
+}
+
+function renderTable() {
+  const body = document.getElementById("recordsBody");
+  body.innerHTML = "";
+
+  const title = document.getElementById("recordsTitle");
+  const todayISO = formatDate(new Date());
+  const dateISO = isAdmin ? (adminSelectedDate || todayISO) : todayISO;
+  const dateLabelDE = formatDateDE(dateISO);
+
+  let titleText = "Einträge für " + dateLabelDE;
+  if (isAdmin) {
+    const filterSelect = document.getElementById("adminEmployeeFilter");
+    const filterValue = filterSelect ? filterSelect.value : "";
+    const typeSelect = document.getElementById("adminTypeFilter");
+    const typeValue = typeSelect ? typeSelect.value : "";
+
+    const parts = [];
+    if (filterValue) parts.push(filterValue);
+    if (typeValue) parts.push(getEmployeeTypeLabel(typeValue));
+
+    titleText += parts.length ? " (" + parts.join(" / ") + ")" : " (alle)";
+  } else {
+    titleText += " (alle)";
+  }
+  title.textContent = titleText;
+
+  const visible = getVisibleRecords();
+  if (!visible.length) {
+    body.innerHTML = `<tr><td class="empty" colspan="9">Keine Einträge.</td></tr>`;
+    updateMonthSummary();
+    return;
+  }
+
+  visible.forEach((r, i) => {
+    const tr = document.createElement("tr");
+
+    const isWork = (r.entryType || "work") === "work";
+    if (!r.checkOutTime && isWork) tr.className = "missing-checkout";
+
+    const baseNameRaw = r.fullName || r.name || "";
+    const baseName = getNameWithEmploymentType(baseNameRaw);
+    const typeLabel =
+      r.entryType === "sick" ? "Krank" :
+      r.entryType === "holiday" ? "Urlaub" : "";
+
+    const isPausedOpen = isWork && !r.checkOutTime && r.isPaused;
+    let displayName = isPausedOpen ? `${baseName} (pausiert)` : baseName;
+    if (!isWork) displayName = `${baseName} (${typeLabel})`;
+
+    const overtime = (isWork && r.totalHours && r.totalHours > 8) ? (r.totalHours - 8) : 0;
+
+    const workedHoursCell = (isWork && r.totalHours) ? r.totalHours.toFixed(2) : "-";
+    const sickDaysCell = (r.entryType === "sick") ? (getAbsenceDays(r).toFixed(2)) : "-";
+    const holidayDaysCell = (r.entryType === "holiday") ? (getAbsenceDays(r).toFixed(2)) : "-";
+
+    let actions = "";
+    if (isAdmin) {
+      actions =
+        `<button class="action-btn" onclick="editRecord(${r.id})">Bearbeiten</button>
+         <button class="action-btn action-delete" onclick="deleteRecord(${r.id})">Löschen</button>`;
+    }
+
+    tr.innerHTML =
+      `<td>${i+1}</td>
+       <td>${displayName}</td>
+       <td>${r.checkInTime || "-"}</td>
+       <td>${r.checkOutTime || "-"}</td>
+       <td>${overtime ? overtime.toFixed(2) : "-"}</td>
+       <td>${workedHoursCell}</td>
+       <td>${sickDaysCell}</td>
+       <td>${holidayDaysCell}</td>
+       <td class="admin-only">${actions}</td>`;
+
+    body.appendChild(tr);
+  });
+
+  updateMonthSummary();
+}
+
+/* Check in/out + Pause/Resume */
+function getSelectedEmployeeForAktionen() {
+  const qs = document.getElementById("employeeQuickSelect");
+  const name = qs ? (qs.value || "").trim() : "";
+  if (!name) {
+    alert("Bitte zuerst einen Mitarbeiter auswählen.");
+    return null;
+  }
+  return name;
+}
+
+function handleCheckIn() {
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName  = document.getElementById("lastName").value.trim();
+  if (!firstName || !lastName) return alert("Bitte Vor- und Nachnamen eingeben.");
+
+  const fullName = `${firstName} ${lastName}`.trim();
+  if (!validateEmployeePin(fullName)) return;
+
+  const now = new Date();
+  const today = formatDate(now);
+
+  const open = findOpenRecord(fullName, today);
+  if (open && !open.checkOutTime) return alert("Bereits eingecheckt.");
+
+  records.push({
+    id: Date.now(),
+    firstName,
+    lastName,
+    fullName,
+    date: today,
+    entryType: "work",
+    checkIn: now.toISOString(),
+    checkOut: null,
+    checkInTime: formatTime(now),
+    checkOutTime: null,
+    totalHours: null,
+    workedMillis: 0,
+    lastStart: now.toISOString(),
+    isPaused: false
+  });
+
+  saveRecords();
+  mirrorUpsertToSupabase(records[records.length - 1]);
+  updateAllEmployeeNameLists();
+  renderTable();
+}
+
+function handleCheckOut() {
+  const fullName = getSelectedEmployeeForAktionen();
+  if (!fullName) return;
+  if (!validateEmployeePin(fullName)) return;
+  const now = new Date();
+  const timeStr = formatTime(now);
+
+  if (!confirm(`Möchtest du wirklich auschecken ${fullName} um ${timeStr}?`)) {
+    return;
+  }
+
+  const today = formatDate(now);
+
+  const open = findOpenRecord(fullName, today);
+  if (!open) return alert("Kein offener Check In gefunden.");
+
+  let worked = open.workedMillis || 0;
+
+  if (!open.isPaused) {
+    const startISO = open.lastStart || open.checkIn;
+    worked += now - new Date(startISO);
+  }
+
+  open.checkOut = now.toISOString();
+  open.checkOutTime = formatTime(now);
+  open.totalHours = worked / 3600000;
+  open.workedMillis = worked;
+  open.isPaused = false;
+  open.lastStart = null;
+
+  saveRecords();
+  mirrorUpsertToSupabase(open);
+  renderTable();
+}
+
+function handlePause() {
+  const fullName = getSelectedEmployeeForAktionen();
+  if (!fullName) return;
+  const now = new Date();
+  const today = formatDate(now);
+
+  const open = findOpenRecord(fullName, today);
+  if (!open) return alert("Kein offener Check In gefunden.");
+  if (open.isPaused) return alert("Die Zeit ist bereits pausiert.");
+
+  const startISO = open.lastStart || open.checkIn;
+  open.workedMillis = (open.workedMillis || 0) + (now - new Date(startISO));
+  open.isPaused = true;
+  open.lastStart = null;
+
+  saveRecords();
+  mirrorUpsertToSupabase(open);
+  renderTable();
+}
+
+function handleResume() {
+  const fullName = getSelectedEmployeeForAktionen();
+  if (!fullName) return;
+  const now = new Date();
+  const today = formatDate(now);
+
+  const open = findOpenRecord(fullName, today);
+  if (!open) return alert("Kein offener Check In gefunden.");
+  if (!open.isPaused) return alert("Die Zeit ist nicht pausiert.");
+
+  open.isPaused = false;
+  open.lastStart = now.toISOString();
+
+  saveRecords();
+  mirrorUpsertToSupabase(open);
+  renderTable();
+}
+
+/* Add absence */
+function addAbsence() {
+  if (!isAdmin) return;
+
+  const select = document.getElementById("absenceEmployeeSelect");
+  const selectedName = select ? (select.value || "").trim() : "";
+  if (!selectedName) {
+    return alert("Bitte im Bereich „Abwesenheit hinzufügen“ einen Mitarbeiter auswählen.");
+  }
+
+  const { first: firstName, last: lastName } = splitFullName(selectedName);
+  const fullName = selectedName;
+
+  const type = document.getElementById("absenceType").value; // sick | holiday
+  const daysRaw = Number(document.getElementById("absenceDuration").value);
+
+  if (!daysRaw || daysRaw <= 0) return alert("Bitte eine gültige Anzahl an Tagen eingeben.");
+
+  const todayISO = formatDate(new Date());
+  const dateISO = adminSelectedDate || todayISO;
+
+  records.push({
+    id: Date.now(),
+    firstName,
+    lastName,
+    fullName,
+    date: dateISO,
+
+    entryType: type,
+    checkIn: null,
+    checkOut: null,
+    checkInTime: null,
+    checkOutTime: null,
+
+    // Option B: record absences in DAYS only (hours are not stored for absence entries)
+    absenceDays: daysRaw,
+    totalHours: null,
+    workedMillis: 0,
+    lastStart: null,
+    isPaused: false
+  });
+
+  saveRecords();
+  mirrorUpsertToSupabase(records[records.length - 1]);
+  updateAllEmployeeNameLists();
+  renderTable();
+
+  document.getElementById("absenceDuration").value = "";
+}
+
+
+/* Month summary (UI quick summary only) */
+function updateMonthSummary() {
+  const box = document.getElementById("monthSummary");
+  if (!isAdmin) return (box.textContent = "");
+
+  const monthSelect = document.getElementById("monthSelect");
+  const monthYearInput = document.getElementById("monthYearInput");
+
+  let year = String(monthYearInput.value);
+  let monthIndex = Number(monthSelect.value) - 1;
+
+  const monthPrefix = year + "-" + String(monthIndex + 1).padStart(2, "0");
+  let monthRecords = records.filter(r => r.date.startsWith(monthPrefix));
+
+  const typeSelect = document.getElementById("adminTypeFilter");
+  const typeValue = typeSelect ? typeSelect.value : "";
+  if (typeValue) {
+    monthRecords = monthRecords.filter(r => {
+      const nm = (r.fullName || r.name || "");
+      return getEmployeeType(nm) === typeValue;
+    });
+  }
+
+  if (!monthRecords.length) {
+    box.textContent = "Keine Einträge für " + monthNames[monthIndex] + " " + year + ".";
+    return;
+  }
+
+  // Option B: worked time is shown in HOURS, absences are shown in DAYS.
+  // Keep the summary unambiguous (don't mix hours and days into one "total" figure).
+  let workedHours = 0;
+  let sickDays = 0;
+  let holidayDays = 0;
+  const employeesSet = new Set();
+
+  monthRecords.forEach(r => {
+    const nm = (r.fullName || r.name || "").trim();
+    if (nm) employeesSet.add(nm);
+
+    const type = (r.entryType || "work");
+    if (type === "work") {
+      const hours = Number(r.totalHours) || 0;
+      workedHours += hours;
+    } else if (type === "sick") {
+      sickDays += getAbsenceDays(r);
+    } else if (type === "holiday") {
+      holidayDays += getAbsenceDays(r);
+    }
+  });
+
+  box.textContent =
+    monthNames[monthIndex] + " " + year + ": " +
+    monthRecords.length + " Einträge, " +
+    workedHours.toFixed(2) + " Arbeitsstunden, " +
+    sickDays.toFixed(2) + " Krankheitstage, " +
+    holidayDays.toFixed(2) + " Urlaubstage, " +
+    employeesSet.size + " Mitarbeiter.";
+}
+
+
+/* Rename employee (admin) */
+function handleRenameEmployee() {
+  if (!isAdmin) return;
+
+  const fromSel = document.getElementById("renameFromEmployee");
+  const fromName = (fromSel?.value || "").trim();
+  if (!fromName) return alert("Bitte einen Mitarbeiter zum Umbenennen auswählen.");
+
+  const newFirst = (document.getElementById("renameNewFirst").value || "").trim();
+  const newLast  = (document.getElementById("renameNewLast").value || "").trim();
+  if (!newFirst || !newLast) return alert("Bitte neuen Vor- und Nachnamen eingeben.");
+
+  const toName = `${newFirst} ${newLast}`.replace(/\s+/g, " ").trim();
+  if (!toName) return alert("Bitte einen gültigen neuen Namen eingeben.");
+  if (toName === fromName) return alert("Der neue Name ist identisch mit dem aktuellen Namen.");
+
+  const allNames = getAllEmployeeNames();
+  const toExists = allNames.includes(toName);
+
+  if (toExists) {
+    const proceed = confirm(
+      `Ein Mitarbeiter mit dem Namen "${toName}" existiert bereits.
+
+` +
+      `Wenn du fortfährst, werden alle Einträge von "${fromName}" verschoben zu "${toName}" (zusammenführen).
+
+Fortfahren?`
+    );
+    if (!proceed) return;
+  }
+
+  // Move records
+  records.forEach(r => {
+    const nm = (r.fullName || r.name || "").trim();
+    if (nm === fromName) {
+      r.fullName = toName;
+      if (r.name) r.name = toName;
+      r.firstName = newFirst;
+      r.lastName = newLast;
+    }
+  });
+
+  // Move employee type mapping
+  const fromType = getEmployeeType(fromName);
+  const toType = getEmployeeType(toName);
+
+  if (toExists) {
+    // If target already has a type, keep it unless it's unassigned and source is assigned
+    if (toType === "unassigned" && fromType !== "unassigned") {
+      setEmployeeType(toName, fromType);
+    }
+  } else {
+    setEmployeeType(toName, fromType);
+  }
+
+  // Remove old mapping (if any)
+  if (employees && employees[fromName]) {
+    delete employees[fromName];
+    saveEmployees();
+  }
+
+  saveRecords();
+  mirrorFullSyncToSupabase();
+  updateAllEmployeeNameLists();
+  renderTable();
+
+  // Clear inputs
+  document.getElementById("renameNewFirst").value = "";
+  document.getElementById("renameNewLast").value = "";
+  alert(`Renamed "${fromName}" to "${toName}".`);
+}
+
+function getSelectedMonthPrefix() {
+  const m = (document.getElementById("monthlyMonthSelect")?.value || "").trim();
+  const y = (document.getElementById("monthlyYearSelect")?.value || "").trim();
+  if (!m || !y) return "";
+  return `${y}-${m}`;
+}
+
+/* Employee monthly records (main board) */
+function renderMonthlyRecords() {
+  const name = getLoggedInEmployeeName();
+  const monthVal = getSelectedMonthPrefix();
+  const body = document.getElementById("monthlyRecordsBody");
+  const summary = document.getElementById("monthlyRecordsSummary");
+
+  if (!body || !summary) return;
+
+  if (!name || !monthVal) {
+    body.innerHTML = '<tr><td class="empty" colspan="8">Anmelden, Monat und Jahr auswählen, dann auf „Anzeigen“ klicken.</td></tr>';
+    summary.textContent = "";
+    return;
+  }
+
+  // monthVal is YYYY-MM
+  const monthPrefix = monthVal;
+  const list = records
+    .filter(r => (r.date || "").startsWith(monthPrefix) && ((r.fullName || r.name || "").trim() === name))
+    .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+
+  if (!list.length) {
+    body.innerHTML = '<tr><td class="empty" colspan="8">Keine Einträge für diesen Mitarbeiter in diesem Monat.</td></tr>';
+    summary.textContent = `${getNameWithEmploymentType(name)} — keine Einträge für ${monthPrefix}.`;
+    return;
+  }
+
+  let worked = 0;
+  let sickDays = 0;
+  let holidayDays = 0;
+  let above8 = 0;
+
+  body.innerHTML = "";
+
+  for (const r of list) {
+    const isWork = (r.entryType || "work") === "work";
+    const hasTotalHours = (r.totalHours !== null && r.totalHours !== undefined);
+    const hours = hasTotalHours ? Number(r.totalHours) : 0;
+    if (isWork) worked += hours;
+    if ((r.entryType || "work") === "sick") sickDays += getAbsenceDays(r);
+    if ((r.entryType || "work") === "holiday") holidayDays += getAbsenceDays(r);
+
+    const overtime = (isWork && hours > 8) ? (hours - 8) : 0;
+    above8 += overtime;
+
+    const typeLabel =
+      r.entryType === "sick" ? "Krank" :
+      r.entryType === "holiday" ? "Urlaub" : "Arbeit";
+
+    const tr = document.createElement("tr");
+    const sickCell = (r.entryType === "sick") ? getAbsenceDays(r).toFixed(2) : "-";
+    const holidayCell = (r.entryType === "holiday") ? getAbsenceDays(r).toFixed(2) : "-";
+
+    tr.innerHTML =
+      `<td>${formatDateDE(r.date)}</td>` +
+      `<td>${typeLabel}</td>` +
+      `<td>${r.checkInTime || "-"}</td>` +
+      `<td>${r.checkOutTime || "-"}</td>` +
+      `<td>${overtime ? overtime.toFixed(2) : "-"}</td>` +
+      `<td>${isWork && hours ? hours.toFixed(2) : "-"}</td>` +
+      `<td>${sickCell}</td>` +
+      `<td>${holidayCell}</td>`;
+    body.appendChild(tr);
+  }
+
+  summary.textContent =
+    `${getNameWithEmploymentType(name)} — ${monthPrefix}: ` +
+    `${list.length} Einträge, ` +
+    `${worked.toFixed(2)} Arbeitsstunden, ` +
+    `${sickDays.toFixed(2)} Krankheitstage, ` +
+    `${holidayDays.toFixed(2)} Urlaubstage, ` +
+    `${above8.toFixed(2)} Stunden über 8.`;
+}
+
+function exportMyMonthlyRecordsCSV() {
+  const name = getLoggedInEmployeeName();
+  const monthVal = getSelectedMonthPrefix();
+
+  if (!name || !monthVal) {
+    alert("Bitte anmelden und zuerst Monat/Jahr auswählen.");
+    return;
+  }
+
+  const monthPrefix = monthVal;
+  const list = records
+    .filter(r => (r.date || "").startsWith(monthPrefix) && ((r.fullName || r.name || "").trim() === name))
+    .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+
+  if (!list.length) {
+    alert("Keine Einträge für diesen Mitarbeiter in diesem Monat.");
+    return;
+  }
+
+  let worked = 0;
+  let sickDays = 0;
+  let holidayDays = 0;
+  let above8 = 0;
+
+  const header = [
+    "Datum",
+    "Mitarbeiter",
+    "Beschäftigungsart",
+    "Typ",
+    "Check In",
+    "Check Out",
+    "Stunden über 8 (Std.)",
+    "Arbeitszeit (Std.)",
+    "Krank (Tage)",
+    "Urlaub (Tage)"
+  ];
+
+  const rows = list.map(r => {
+    const displayName = (r.fullName || r.name || "").trim();
+    const empTypeLabel = getEmployeeTypeLabel(getEmployeeType(displayName));
+    const isWork = (r.entryType || "work") === "work";
+    const hasHours = hasTotalHours(r);
+    const hours = hasHours ? Number(r.totalHours) : 0;
+
+    if (isWork) worked += hours;
+    if ((r.entryType || "work") === "sick") sickDays += getAbsenceDays(r);
+    if ((r.entryType || "work") === "holiday") holidayDays += getAbsenceDays(r);
+
+    const overtime = (isWork && hours > 8) ? (hours - 8) : 0;
+    above8 += overtime;
+
+    const typeLabel =
+      r.entryType === "sick" ? "Krank" :
+      r.entryType === "holiday" ? "Urlaub" :
+      "Arbeit";
+
+    const sickDaysVal = getAbsenceDays(r);
+    const holidayDaysVal = getAbsenceDays(r);
+    const sickCell = (r.entryType === "sick" && sickDaysVal !== null && sickDaysVal !== undefined) ? sickDaysVal.toFixed(2) : "";
+    const holidayCell = (r.entryType === "holiday" && holidayDaysVal !== null && holidayDaysVal !== undefined) ? holidayDaysVal.toFixed(2) : "";
+
+    const overtimeCell = isWork ? overtime : null;
+    const workedCell = (isWork && hasHours) ? hours : null;
+
+    return [
+      formatDateDE(r.date),
+      displayName,
+      empTypeLabel,
+      typeLabel,
+      r.checkInTime || "",
+      r.checkOutTime || "",
+      (overtimeCell !== null && overtimeCell !== undefined) ? overtimeCell.toFixed(2) : "",
+      (workedCell !== null && workedCell !== undefined) ? workedCell.toFixed(2) : "",
+      sickCell,
+      holidayCell
+    ];
+  });
+
+  const lines = [];
+  const title = `${monthPrefix} - ${name}`;
+  lines.push(toCsvLine([title]));
+  lines.push(toCsvLine(header));
+  rows.forEach(r => lines.push(toCsvLine(r)));
+  lines.push("");
+
+  lines.push(toCsvLine(["Arbeitsstunden:", worked.toFixed(2)]));
+  lines.push(toCsvLine(["Stunden über 8:", above8.toFixed(2)]));
+  lines.push(toCsvLine(["Krankheitstage:", sickDays.toFixed(2)]));
+  lines.push(toCsvLine(["Urlaubstage:", holidayDays.toFixed(2)]));
+
+  const csv = lines.join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  // Use a filename that is safe for most systems
+  a.download = `${monthPrefix} - ${name} - monthly records.csv`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+
+/* Edit / Delete */
+function editRecord(id) {
+  if (!isAdmin) return;
+
+  const rec = records.find(r => r.id === id);
+  if (!rec) return;
+
+  const isWork = (rec.entryType || "work") === "work";
+  if (!isWork) {
+    const currentDays = getAbsenceDays(rec) || 0;
+    const newDaysStr = prompt("Abwesenheitsdauer bearbeiten (Tage):", String(currentDays));
+    if (newDaysStr === null) return;
+    const newDays = Number(newDaysStr);
+    if (!isFinite(newDays) || newDays <= 0) return alert("Bitte eine gültige Anzahl an Tagen eingeben.");
+    rec.absenceDays = newDays;
+    rec.totalHours = null;
+    saveRecords();
+    mirrorUpsertToSupabase(rec);
+    renderTable();
+    return;
+  }
+
+  const newIn = prompt("Neuer Check In (HH:MM):", rec.checkInTime || "");
+  if (newIn === null) return;
+
+  const newOut = prompt("Neuer Check Out (HH:MM):", rec.checkOutTime || "");
+  if (newOut === null) return;
+
+  function timeToDate(dateStr, timeStr) {
+    const [h, m] = timeStr.split(":").map(Number);
+    const d = new Date(dateStr + "T00:00:00");
+    d.setHours(h || 0, m || 0);
+    return d;
+  }
+
+  if (newIn.trim()) {
+    rec.checkInTime = newIn.trim();
+    rec.checkIn = timeToDate(rec.date, rec.checkInTime).toISOString();
+  }
+
+  if (newOut.trim()) {
+    rec.checkOutTime = newOut.trim();
+    rec.checkOut = timeToDate(rec.date, rec.checkOutTime).toISOString();
+  } else {
+    rec.checkOut = null;
+    rec.checkOutTime = null;
+  }
+
+  if (rec.checkIn && rec.checkOut) {
+    const diffMs = new Date(rec.checkOut) - new Date(rec.checkIn);
+    rec.totalHours = diffMs / 3600000;
+    rec.workedMillis = diffMs;
+  } else {
+    rec.totalHours = null;
+    rec.workedMillis = 0;
+  }
+
+  rec.entryType = rec.entryType || "work";
+  rec.isPaused = false;
+  rec.lastStart = null;
+
+  saveRecords();
+  mirrorUpsertToSupabase(rec);
+  renderTable();
+}
+
+function deleteRecord(id) {
+  if (!isAdmin) return;
+  if (!confirm("Diesen Eintrag löschen?")) return;
+  records = records.filter(r => r.id !== id);
+  saveRecords();
+  mirrorFullSyncToSupabase();
+  updateAllEmployeeNameLists();
+  renderTable();
+}
+
+/* Save employee type */
+function handleSaveEmployeeType() {
+  if (!isAdmin) return;
+
+  const empSelect = document.getElementById("empTypeEmployee");
+  const typeSelect = document.getElementById("empTypeSelect");
+  const name = empSelect ? empSelect.value : "";
+  const type = typeSelect ? typeSelect.value : "unassigned";
+
+  if (!name) return alert("Bitte zuerst einen Mitarbeiter auswählen.");
+
+  setEmployeeType(name, type);
+  mirrorResyncEmployeeTypeToSupabase(name);
+  alert(`Gespeichert: ${name} = ${getEmployeeTypeLabel(type)}`);
+
+  renderTable();
+}
+
+function handleAddNewEmployee() {
+  if (!isAdmin) return;
+
+  const firstInput = document.getElementById("newEmpFirstName");
+  const lastInput = document.getElementById("newEmpLastName");
+  const typeSelect = document.getElementById("empTypeSelect");
+  const first = firstInput ? firstInput.value : "";
+  const last = lastInput ? lastInput.value : "";
+  const name = normalizeFullName(`${first} ${last}`);
+
+  if (!name) return alert("Bitte Namen eingeben.");
+
+  const type = typeSelect ? typeSelect.value : "unassigned";
+  setEmployeeType(name, type || "unassigned");
+  updateAllEmployeeNameLists();
+
+  if (firstInput) firstInput.value = "";
+  if (lastInput) lastInput.value = "";
+  alert("Mitarbeiter hinzugefügt.");
+}
+
+/* Month export */
+function exportCSV() {
+  if (!isAdmin) return;
+
+  const monthSelect = document.getElementById("monthSelect");
+  const monthYearInput = document.getElementById("monthYearInput");
+  const exportSelectedOnly = document.getElementById("exportSelectedOnly").checked;
+  const filterSelect = document.getElementById("adminEmployeeFilter");
+  const typeSelect = document.getElementById("adminTypeFilter");
+
+  let year = String(monthYearInput.value);
+  let monthIndex = Number(monthSelect.value) - 1;
+
+  const monthPrefix = year + "-" + String(monthIndex + 1).padStart(2,"0");
+  let monthRecords = records.filter(r => r.date.startsWith(monthPrefix));
+
+  const typeValue = typeSelect ? typeSelect.value : "";
+  if (typeValue) {
+    monthRecords = monthRecords.filter(r => {
+      const nm = (r.fullName || r.name || "");
+      return getEmployeeType(nm) === typeValue;
+    });
+  }
+
+  if (!monthRecords.length) {
+    alert("Keine Einträge für diesen Monat.");
+    return;
+  }
+
+  if (exportSelectedOnly) {
+    const selectedName = filterSelect ? filterSelect.value : "";
+    if (!selectedName) {
+      alert("Bitte zuerst im Filter einen Mitarbeiter auswählen.");
+      return;
+    }
+    monthRecords = monthRecords.filter(r => (r.fullName || r.name) === selectedName);
+    if (!monthRecords.length) {
+      alert("Keine Einträge für diesen Mitarbeiter in diesem Monat.");
+      return;
+    }
+  }
+
+  // NEW: Warn only when exporting ALL types (type filter is empty)
+  if (!typeValue) {
+    const ok = warnIfUnassignedInExport(monthRecords, `Monthly export: ${monthNames[monthIndex]} ${year}`);
+    if (!ok) return;
+  }
+
+  let totalWorkedHours = 0;
+  let totalOvertime = 0;
+
+  let totalSickDays = 0;
+  let totalHolidayDays = 0;
+
+  const perEmpWorked = {};
+  const perEmpOvertime = {};
+  const perEmpSickDays = {};
+  const perEmpHolidayDays = {};
+
+  monthRecords.forEach(r => {
+    const name = r.fullName || r.name || "";
+    const type = (r.entryType || "work");
+
+    if (type === "work") {
+      const hours = Number(r.totalHours) || 0;
+      if (!hours) return;
+
+      totalWorkedHours += hours;
+      perEmpWorked[name] = (perEmpWorked[name] || 0) + hours;
+
+      const ot = hours > 8 ? (hours - 8) : 0;
+      totalOvertime += ot;
+      perEmpOvertime[name] = (perEmpOvertime[name] || 0) + ot;
+    } else if (type === "sick") {
+      const days = getAbsenceDays(r);
+      if (!days) return;
+      totalSickDays += days;
+      perEmpSickDays[name] = (perEmpSickDays[name] || 0) + days;
+    } else if (type === "holiday") {
+      const days = getAbsenceDays(r);
+      if (!days) return;
+      totalHolidayDays += days;
+      perEmpHolidayDays[name] = (perEmpHolidayDays[name] || 0) + days;
+    }
+  });
+
+  const header = ["Datum","Mitarbeiter","Beschäftigungsart","Typ","Check In","Check Out","Stunden über 8 (Std.)","Arbeitszeit (Std.)","Krank (Tage)","Urlaub (Tage)"];
+  const rows = monthRecords.map(r => {
+    const displayName = r.fullName || r.name || "";
+    const empTypeLabel = getEmployeeTypeLabel(getEmployeeType(displayName));
+
+    const typeLabel =
+      r.entryType === "sick" ? "Krank" :
+      r.entryType === "holiday" ? "Urlaub" :
+      "Arbeit";
+
+    const isWork = (r.entryType || "work") === "work";
+    const hasTotalHours = (r.totalHours !== null && r.totalHours !== undefined);
+    const hours = hasTotalHours ? Number(r.totalHours) : 0;
+    const overtime = (isWork && hours > 8) ? (hours - 8) : 0;
+
+    const workedHours = (isWork && hasTotalHours) ? hours : null;
+    const sickDaysVal = (r.entryType === "sick") ? getAbsenceDays(r) : null;
+    const holidayDaysVal = (r.entryType === "holiday") ? getAbsenceDays(r) : null;
+    const overtimeCell = isWork ? overtime : null;
+
+    return [
+      formatDateDE(r.date),
+      displayName,
+      empTypeLabel,
+      typeLabel,
+      r.checkInTime || "",
+      r.checkOutTime || "",
+      (overtimeCell !== null && overtimeCell !== undefined) ? overtimeCell.toFixed(2) : "",
+      (workedHours !== null && workedHours !== undefined) ? workedHours.toFixed(2) : "",
+      (sickDaysVal !== null && sickDaysVal !== undefined) ? sickDaysVal.toFixed(2) : "",
+      (holidayDaysVal !== null && holidayDaysVal !== undefined) ? holidayDaysVal.toFixed(2) : ""
+    ];
+  });
+
+  const monthName = monthNames[monthIndex];
+  const lines = [];
+  lines.push(toCsvLine([monthName + " " + year]));
+  lines.push(toCsvLine(header));
+  rows.forEach(row => lines.push(toCsvLine(row)));
+  lines.push("");
+
+  lines.push(toCsvLine(["Gesamt-Arbeitsstunden diesen Monat:", totalWorkedHours.toFixed(2)]));
+  lines.push(toCsvLine(["Gesamt-Stunden über 8 diesen Monat:", totalOvertime.toFixed(2)]));
+  lines.push(toCsvLine(["Gesamt-Krankheitstage diesen Monat:", totalSickDays.toFixed(2)]));
+  lines.push(toCsvLine(["Gesamt-Urlaubstage diesen Monat:", totalHolidayDays.toFixed(2)]));
+  lines.push("");
+
+  lines.push(toCsvLine(["Mitarbeiter-Summen"]));
+  lines.push(toCsvLine([
+    "Mitarbeiter",
+    "Beschäftigungsart",
+    "Arbeitszeit (Std.)",
+    "Stunden über 8 (Std.)",
+    "Krank (Tage)",
+    "Urlaub (Tage)"
+  ]));
+
+  const allNames = new Set([
+    ...Object.keys(perEmpWorked),
+    ...Object.keys(perEmpOvertime),
+    ...Object.keys(perEmpSickDays),
+    ...Object.keys(perEmpHolidayDays)
+  ]);
+
+  Array.from(allNames).sort((a,b)=>a.localeCompare(b)).forEach(name => {
+    const wh = perEmpWorked[name] || 0;
+    const ot = perEmpOvertime[name] || 0;
+    const sd = perEmpSickDays[name] || 0;
+    const hd = perEmpHolidayDays[name] || 0;
+    const empTypeLabel = getEmployeeTypeLabel(getEmployeeType(name));
+
+    lines.push(toCsvLine([
+      name,
+      empTypeLabel,
+      wh.toFixed(2),
+      ot.toFixed(2),
+      sd.toFixed(2),
+      hd.toFixed(2)
+    ]));
+  });
+
+  const csv = lines.join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = monthName + " " + year + (exportSelectedOnly ? " - selected employee.csv" : ".csv");
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+/* Year export */
+function exportYearCSV() {
+  if (!isAdmin) return;
+
+  const yearInput = document.getElementById("yearInput");
+  let year = yearInput?.value || new Date().getFullYear();
+
+  const yearPrefix = year + "-";
+  let yearRecords = records.filter(r => r.date.startsWith(yearPrefix));
+
+  const typeSelect = document.getElementById("adminTypeFilter");
+  const typeValue = typeSelect ? typeSelect.value : "";
+  if (typeValue) {
+    yearRecords = yearRecords.filter(r => {
+      const nm = (r.fullName || r.name || "");
+      return getEmployeeType(nm) === typeValue;
+    });
+  }
+
+  const exportSelectedOnly = document.getElementById("exportSelectedOnly")?.checked;
+  const filterSelect = document.getElementById("adminEmployeeFilter");
+
+  if (exportSelectedOnly) {
+    const selectedName = filterSelect ? filterSelect.value : "";
+    if (!selectedName) {
+      alert("Bitte zuerst im Filter einen Mitarbeiter auswählen.");
+      return;
+    }
+    yearRecords = yearRecords.filter(r => (r.fullName || r.name) === selectedName);
+    if (!yearRecords.length) {
+      alert("Keine Einträge für diesen Mitarbeiter in diesem Jahr.");
+      return;
+    }
+  }
+
+  if (!yearRecords.length) {
+    alert("Keine Einträge für das Jahr " + year);
+    return;
+  }
+
+  // NEW: Warn only when exporting ALL types (type filter is empty)
+  if (!typeValue) {
+    const ok = warnIfUnassignedInExport(yearRecords, `Yearly export: ${year}`);
+    if (!ok) return;
+  }
+
+  let totalWorkedHours = 0;
+  let totalSickDays = 0;
+  let totalHolidayDays = 0;
+
+  const perEmpWorked = {};
+  const perEmpSickDays = {};
+  const perEmpHolidayDays = {};
+
+  yearRecords.forEach(r => {
+    const name = r.fullName || r.name || "";
+    const type = (r.entryType || "work");
+
+    if (type === "work") {
+      const hours = Number(r.totalHours) || 0;
+      if (!hours) return;
+      totalWorkedHours += hours;
+      perEmpWorked[name] = (perEmpWorked[name] || 0) + hours;
+    } else if (type === "sick") {
+      const days = getAbsenceDays(r);
+      if (!days) return;
+      totalSickDays += days;
+      perEmpSickDays[name] = (perEmpSickDays[name] || 0) + days;
+    } else if (type === "holiday") {
+      const days = getAbsenceDays(r);
+      if (!days) return;
+      totalHolidayDays += days;
+      perEmpHolidayDays[name] = (perEmpHolidayDays[name] || 0) + days;
+    }
+  });
+
+  const header = ["Datum","Mitarbeiter","Beschäftigungsart","Typ","Check In","Check Out","Stunden über 8 (Std.)","Arbeitszeit (Std.)","Krank (Tage)","Urlaub (Tage)","Month"];
+  const rows = yearRecords.map(r => {
+    const m = Number(r.date.split("-")[1]) - 1;
+    const displayName = r.fullName || r.name || "";
+    const empTypeLabel = getEmployeeTypeLabel(getEmployeeType(displayName));
+
+    const typeLabel =
+      r.entryType === "sick" ? "Krank" :
+      r.entryType === "holiday" ? "Urlaub" :
+      "Arbeit";
+
+    const isWork = (r.entryType || "work") === "work";
+    const hasTotalHours = (r.totalHours !== null && r.totalHours !== undefined);
+    const hours = hasTotalHours ? Number(r.totalHours) : 0;
+    const overtime = (isWork && hours > 8) ? (hours - 8) : 0;
+    const workedHours = (isWork && hasTotalHours) ? hours : null;
+    const sickCell = (r.entryType === "sick") ? getAbsenceDays(r) : null;
+    const holidayCell = (r.entryType === "holiday") ? getAbsenceDays(r) : null;
+    const overtimeCell = isWork ? overtime : null;
+
+    return [
+      formatDateDE(r.date),
+      displayName,
+      empTypeLabel,
+      typeLabel,
+      r.checkInTime || "",
+      r.checkOutTime || "",
+      (overtimeCell !== null && overtimeCell !== undefined) ? overtimeCell.toFixed(2) : "",
+      (workedHours !== null && workedHours !== undefined) ? workedHours.toFixed(2) : "",
+      (sickCell !== null && sickCell !== undefined) ? sickCell.toFixed(2) : "",
+      (holidayCell !== null && holidayCell !== undefined) ? holidayCell.toFixed(2) : "",
+      monthNames[m]
+    ];
+  });
+
+  const lines = [];
+  lines.push(toCsvLine(["Year " + year]));
+  lines.push(toCsvLine(header));
+  rows.forEach(row => lines.push(toCsvLine(row)));
+  lines.push("");
+
+  lines.push(toCsvLine(["Gesamt-Arbeitsstunden dieses Jahr:", totalWorkedHours.toFixed(2)]));
+  lines.push(toCsvLine(["Gesamt-Krankheitstage dieses Jahr:", totalSickDays.toFixed(2)]));
+  lines.push(toCsvLine(["Gesamt-Urlaubstage dieses Jahr:", totalHolidayDays.toFixed(2)]));
+  lines.push("");
+
+  lines.push(toCsvLine(["Mitarbeiter-Jahressummen"]));
+  lines.push(toCsvLine([
+    "Mitarbeiter",
+    "Beschäftigungsart",
+    "Arbeitszeit (Std.)",
+    "Krank (Tage)",
+    "Urlaub (Tage)"
+  ]));
+
+  const allNames = new Set([
+    ...Object.keys(perEmpWorked),
+    ...Object.keys(perEmpSickDays),
+    ...Object.keys(perEmpHolidayDays)
+  ]);
+
+  Array.from(allNames).sort((a,b)=>a.localeCompare(b)).forEach(name => {
+    const wh = perEmpWorked[name] || 0;
+    const sd = perEmpSickDays[name] || 0;
+    const hd = perEmpHolidayDays[name] || 0;
+    const empTypeLabel = getEmployeeTypeLabel(getEmployeeType(name));
+
+    lines.push(toCsvLine([
+      name,
+      empTypeLabel,
+      wh.toFixed(2),
+      sd.toFixed(2),
+      hd.toFixed(2)
+    ]));
+  });
+
+  const csv = lines.join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "Year " + year + ".csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+/* Old yearly CSV import (admin only) */
+function importUnifiedCSV() {
+  if (!isAdmin) return alert("Bitte zuerst als Admin anmelden.");
+
+  const input = document.getElementById("csvImportFile");
+  const file = input?.files?.[0];
+  if (!file) return alert("Bitte zuerst eine CSV-Datei auswählen.");
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      processUnifiedCsvText(String(reader.result || ""));
+    } catch (e) {
+      alert("CSV-Import fehlgeschlagen.");
+    }
+  };
+  reader.onerror = () => alert("CSV-Datei konnte nicht gelesen werden.");
+  reader.readAsText(file);
+}
+
+function processUnifiedCsvText(text) {
+  const lines = String(text || "").split(/\r?\n/);
+  let idx = 0;
+
+  while (idx < lines.length && !lines[idx].trim()) idx++;
+  if (idx >= lines.length) return alert("CSV-Datei ist leer.");
+
+  const firstParsed = parseCsvLine(lines[idx] || "");
+  const firstCell = String(firstParsed[0] || "").trim().replace(/^\uFEFF/, "");
+  if (firstCell.startsWith("Jahr")) idx++;
+
+  while (idx < lines.length && !lines[idx].trim()) idx++;
+  if (idx >= lines.length) return alert("CSV-Headerzeile fehlt.");
+
+  const headerRaw = parseCsvLine(lines[idx] || "");
+  const header = headerRaw.map(v => String(v || "").trim().replace(/^\uFEFF/, ""));
+  const headerMap = {};
+  header.forEach((h, i) => {
+    if (h && headerMap[h] === undefined) headerMap[h] = i;
+  });
+
+  if (headerMap["rowType"] !== undefined && headerMap["entryType"] !== undefined) {
+    processBackupCsvLines(lines, idx + 1, headerMap);
+    return;
+  }
+
+  if (headerMap["Datum"] !== undefined && headerMap["Mitarbeiter"] !== undefined) {
+    processLegacyYearCsvLines(lines, idx + 1, headerMap);
+    return;
+  }
+
+  alert("Unbekanntes CSV-Format.");
+}
+
+function parseBoolCsv(value) {
+  const v = String(value || "").trim().toLowerCase();
+  if (!v) return false;
+  return v === "true" || v === "1" || v === "yes";
+}
+
+function processBackupCsvLines(lines, startIndex, headerMap) {
+  let processed = 0;
+  let added = 0;
+  let updated = 0;
+  let skipped = 0;
+
+  const indexById = new Map();
+  records.forEach((r, i) => indexById.set(Number(r.id), i));
+
+  for (let i = startIndex; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line || !line.trim()) continue;
+
+    const cols = parseCsvLine(line);
+    const rowType = String(cols[headerMap["rowType"]] || "").trim();
+    if (!rowType) {
+      skipped++;
+      continue;
+    }
+
+    processed++;
+
+    if (rowType === "record") {
+      const idStr = String(cols[headerMap["id"]] || "").trim();
+      const id = Number(idStr);
+      if (!isFinite(id)) {
+        skipped++;
+        continue;
+      }
+
+      const record = {
+        id,
+        date: String(cols[headerMap["date"]] || "").trim(),
+        entryType: String(cols[headerMap["entryType"]] || "work").trim() || "work",
+        fullName: String(cols[headerMap["fullName"]] || "").trim(),
+        firstName: String(cols[headerMap["firstName"]] || "").trim(),
+        lastName: String(cols[headerMap["lastName"]] || "").trim(),
+        checkIn: String(cols[headerMap["checkIn"]] || "").trim() || null,
+        checkOut: String(cols[headerMap["checkOut"]] || "").trim() || null,
+        checkInTime: String(cols[headerMap["checkInTime"]] || "").trim() || null,
+        checkOutTime: String(cols[headerMap["checkOutTime"]] || "").trim() || null,
+        totalHours: parseCsvFloat(cols[headerMap["totalHours"]]),
+        absenceDays: parseCsvFloat(cols[headerMap["absenceDays"]]),
+        workedMillis: (() => {
+          const v = String(cols[headerMap["workedMillis"]] || "").trim();
+          if (!v) return 0;
+          const n = Number(v);
+          return isFinite(n) ? n : 0;
+        })(),
+        lastStart: String(cols[headerMap["lastStart"]] || "").trim() || null,
+        isPaused: parseBoolCsv(cols[headerMap["isPaused"]])
+      };
+
+      const existingIndex = indexById.get(id);
+      if (existingIndex !== undefined) {
+        records[existingIndex] = record;
+        updated++;
+      } else {
+        records.push(record);
+        indexById.set(id, records.length - 1);
+        added++;
+      }
+    } else if (rowType === "employee") {
+      const name = String(cols[headerMap["fullName"]] || "").trim();
+      if (!name) {
+        skipped++;
+        continue;
+      }
+      const type = String(cols[headerMap["employmentType"]] || "").trim();
+      const existed = !!employees?.[name];
+      employees[name] = employees[name] || {};
+      employees[name].type = normalizeEmpType(type || "unassigned");
+      if (existed) updated++; else added++;
+    } else if (rowType === "pin") {
+      const name = String(cols[headerMap["fullName"]] || "").trim();
+      if (!name) {
+        skipped++;
+        continue;
+      }
+      const pin = String(cols[headerMap["pin"]] || "").trim();
+      const existed = employeePins && Object.prototype.hasOwnProperty.call(employeePins, name);
+      if (!pin) delete employeePins[name];
+      else employeePins[name] = pin;
+      if (existed) updated++; else added++;
+    } else {
+      skipped++;
+    }
+  }
+
+  saveRecords();
+  saveEmployees();
+  saveEmployeePins();
+  updateAllEmployeeNameLists();
+  renderTable();
+  updateEmployeeMonthlyUI();
+
+  alert(`Import abgeschlossen: verarbeitet ${processed}, hinzugefügt ${added}, aktualisiert ${updated}, übersprungen ${skipped}`);
+}
+
+function processLegacyYearCsvLines(lines, startIndex, headerMap) {
+  let processed = 0;
+  let added = 0;
+  let updated = 0;
+  let skipped = 0;
+
+  const indexById = new Map();
+  records.forEach((r, i) => indexById.set(Number(r.id), i));
+
+  for (let i = startIndex; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line || !line.trim()) continue;
+
+    const cols = parseCsvLine(line);
+    const datum = String(cols[headerMap["Datum"]] || "").trim();
+    const mitarbeiter = String(cols[headerMap["Mitarbeiter"]] || "").trim();
+
+    if (!datum || !mitarbeiter) {
+      skipped++;
+      continue;
+    }
+    if (!/^\d{2}\.\d{2}\.\d{4}$/.test(datum)) {
+      skipped++;
+      continue;
+    }
+
+    const isoDate = parseGermanDateToISO(datum);
+    if (!isoDate) {
+      skipped++;
+      continue;
+    }
+
+    const fullName = mitarbeiter.trim();
+    if (!fullName) {
+      skipped++;
+      continue;
+    }
+
+    const { first: firstName, last: lastName } = splitFullName(fullName);
+
+    const checkInRaw = headerMap["Check-in"] !== undefined ? cols[headerMap["Check-in"]] : "";
+    const checkOutRaw = headerMap["Check-out"] !== undefined ? cols[headerMap["Check-out"]] : "";
+    const checkInTime = normalizeTimeString(checkInRaw);
+    const checkOutTime = normalizeTimeString(checkOutRaw);
+
+    const checkIn = checkInTime ? `${isoDate}T${checkInTime}:00` : null;
+    const checkOut = checkOutTime ? `${isoDate}T${checkOutTime}:00` : null;
+
+    const totalRaw = headerMap["Gesamt (Stunden)"] !== undefined ? cols[headerMap["Gesamt (Stunden)"]] : "";
+    const totalHours = parseCsvFloat(totalRaw);
+    const workedMillis = (totalHours !== null && isFinite(totalHours))
+      ? Math.round(totalHours * 3600000)
+      : 0;
+
+    const key = `${isoDate}|${fullName}|${checkInTime || ""}|${checkOutTime || ""}`;
+    const id = stableHash32(key);
+
+    const record = {
+      id,
+      entryType: "work",
+      fullName,
+      firstName,
+      lastName,
+      date: isoDate,
+      checkInTime: checkInTime || null,
+      checkOutTime: checkOutTime || null,
+      checkIn,
+      checkOut,
+      totalHours: (totalHours !== null && isFinite(totalHours)) ? totalHours : null,
+      absenceDays: null,
+      workedMillis,
+      isPaused: false,
+      lastStart: checkOut ? null : (checkIn || null)
+    };
+
+    processed++;
+    const existingIndex = indexById.get(id);
+    if (existingIndex !== undefined) {
+      records[existingIndex] = record;
+      updated++;
+    } else {
+      records.push(record);
+      indexById.set(id, records.length - 1);
+      added++;
+    }
+  }
+
+  saveRecords();
+  updateAllEmployeeNameLists();
+  renderTable();
+  updateEmployeeMonthlyUI();
+
+  alert(`Import abgeschlossen: verarbeitet ${processed}, hinzugefügt ${added}, aktualisiert ${updated}, übersprungen ${skipped}`);
+}
+
+/* Admin login */
+function applyAdminDate() {
+  if (!isAdmin) return;
+  adminSelectedDate = document.getElementById("adminDate").value || null;
+  renderTable();
+}
+
+function handleAdminLogin() {
+  if (isAdmin) {
+    isAdmin = false;
+    adminSelectedDate = null;
+
+    const empFilter = document.getElementById("adminEmployeeFilter");
+    if (empFilter) empFilter.value = "";
+
+    const typeFilter = document.getElementById("adminTypeFilter");
+    if (typeFilter) typeFilter.value = "";
+
+    const exportSelectedOnly = document.getElementById("exportSelectedOnly");
+    if (exportSelectedOnly) exportSelectedOnly.checked = false;
+
+    updateUI();
+    renderTable();
+    updateEmployeeMonthlyUI();
+    return;
+  }
+
+  const p = prompt("Admin-Passwort eingeben:");
+  if (p === getStoredPassword()) {
+    isAdmin = true;
+
+    const now = new Date();
+    const todayISO = formatDate(now);
+
+    adminSelectedDate = todayISO;
+    document.getElementById("adminDate").value = todayISO;
+
+    const yearNow = now.getFullYear();
+    const monthNow = now.getMonth() + 1;
+
+    document.getElementById("monthYearInput").value = yearNow;
+    document.getElementById("monthSelect").value = String(monthNow);
+    document.getElementById("yearInput").value = yearNow;
+
+    const exportSelectedOnly = document.getElementById("exportSelectedOnly");
+    if (exportSelectedOnly) exportSelectedOnly.checked = false;
+
+    const typeFilter = document.getElementById("adminTypeFilter");
+    if (typeFilter) typeFilter.value = "";
+
+    updateUI();
+    updateAllEmployeeNameLists();
+    renderTable();
+    updateEmployeeMonthlyUI();
+  } else {
+    alert("Falsches Passwort.");
+  }
+}
+
+function updateUI() {
+  document.getElementById("adminPanel").style.display = isAdmin ? "block" : "none";
+  document.getElementById("adminLoginBtn").textContent = isAdmin ? "Abmelden" : "Admin-Login";
+  document.body.classList.toggle("admin-mode", isAdmin);
+}
+
+function changePassword() {
+  if (!isAdmin) return;
+
+  const oldPw = document.getElementById("oldPassword").value;
+  const newPw = document.getElementById("newPassword").value;
+
+  if (!oldPw || !newPw) return alert("Bitte beide Felder ausfüllen.");
+  if (oldPw !== getStoredPassword()) return alert("Altes Passwort ist falsch.");
+
+  setStoredPassword(newPw);
+  document.getElementById("oldPassword").value = "";
+  document.getElementById("newPassword").value = "";
+  alert("Passwort aktualisiert.");
+}
+
+/* Employee monthly login (PIN gate) */
+function updateEmployeeMonthlyUI() {
+  const loginSelect = document.getElementById("employeeLoginSelect");
+  const pinInput = document.getElementById("employeePinInput");
+  const loginBtn = document.getElementById("employeeLoginBtn");
+  const logoutBtn = document.getElementById("employeeLogoutBtn");
+  const loggedInAs = document.getElementById("employeeLoggedInAs");
+
+  const isLogged = isEmployeeLoggedIn();
+  const name = getLoggedInEmployeeName();
+
+  if (loggedInAs) {
+    loggedInAs.textContent = isLogged ? `Angemeldet als: ${getNameWithEmploymentType(name)}` : "";
+  }
+
+  if (loginSelect) loginSelect.disabled = isLogged;
+  if (pinInput) pinInput.disabled = isLogged;
+  if (loginBtn) loginBtn.style.display = isLogged ? "none" : "inline-block";
+  if (logoutBtn) logoutBtn.style.display = isLogged ? "inline-block" : "none";
+
+  // Disable monthly actions unless logged in
+  const monthSel = document.getElementById("monthlyMonthSelect");
+  const yearSel = document.getElementById("monthlyYearSelect");
+  const viewBtn = document.getElementById("viewMonthlyBtn");
+  const dlBtn = document.getElementById("downloadMonthlyCsvBtn");
+
+  const enable = isLogged && !isAdmin;
+  if (monthSel) monthSel.disabled = !enable;
+  if (yearSel) yearSel.disabled = !enable;
+  if (viewBtn) viewBtn.disabled = !enable;
+  if (dlBtn) dlBtn.disabled = !enable;
+
+  // If admin is logged in, hide employee monthly panel entirely to avoid confusion
+  const panel = document.getElementById("employeeMonthlyPanel");
+  if (panel) panel.style.display = isAdmin ? "none" : "block";
+}
+
+function handleEmployeeLogin() {
+  if (isAdmin) return;
+
+  const sel = document.getElementById("employeeLoginSelect");
+  const pinInput = document.getElementById("employeePinInput");
+  const name = (sel?.value || "").trim();
+  const pin = String(pinInput?.value || "").trim();
+
+  if (!name) return alert("Bitte zuerst deinen Namen auswählen.");
+
+  const requiredPin = getEmployeePin(name);
+  if (!requiredPin) {
+    return alert("Für diesen Mitarbeiter ist noch keine PIN gesetzt. Bitte den Admin, eine PIN zu setzen.");
+  }
+
+  if (!pin) return alert("Bitte PIN eingeben.");
+  if (pin !== requiredPin) return alert("Falsche PIN.");
+
+  setLoggedInEmployeeName(name);
+  if (pinInput) pinInput.value = "";
+
+  updateEmployeeMonthlyUI();
+  renderMonthlyRecords();
+}
+
+function handleEmployeeLogout() {
+  setLoggedInEmployeeName("");
+  updateEmployeeMonthlyUI();
+
+  const body = document.getElementById("monthlyRecordsBody");
+  const summary = document.getElementById("monthlyRecordsSummary");
+  if (body) body.innerHTML = '<tr><td class="empty" colspan="8">Anmelden, Monat und Jahr auswählen, dann auf „Anzeigen“ klicken.</td></tr>';
+  if (summary) summary.textContent = "";
+}
+
+/* Admin: set/remove employee PIN */
+function handleSavePin() {
+  if (!isAdmin) return;
+  const sel = document.getElementById("pinEmployeeSelect");
+  const inp = document.getElementById("pinValueInput");
+  const name = (sel?.value || "").trim();
+  const pin = String(inp?.value || "").trim();
+  if (!name) return alert("Bitte zuerst einen Mitarbeiter auswählen.");
+  if (!pin) return alert("Bitte eine PIN eingeben.");
+
+  setEmployeePin(name, pin);
+  if (inp) inp.value = "";
+  alert(`PIN gespeichert für ${name}.`);
+}
+
+function handleClearPin() {
+  if (!isAdmin) return;
+  const sel = document.getElementById("pinEmployeeSelect");
+  const name = (sel?.value || "").trim();
+  if (!name) return alert("Bitte zuerst einen Mitarbeiter auswählen.");
+  const ok = confirm(`PIN entfernen für ${name}? Ohne neue PIN kann die Monatsübersicht nicht angezeigt werden.`);
+  if (!ok) return;
+  setEmployeePin(name, "");
+  alert(`PIN entfernt für ${name}.`);
+}
+
+function handlePinEmployeeSelectChange() {
+  if (!isAdmin) return;
+  const sel = document.getElementById("pinEmployeeSelect");
+  const inp = document.getElementById("pinValueInput");
+  const name = (sel?.value || "").trim();
+  if (!inp) return;
+  // Don't reveal the existing PIN; just clear the field.
+  inp.value = "";
+}
+
+
+
+async function mirrorFullSyncToSupabase() {
+  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("PASTE_YOUR")) return;
+  // Best-effort: upsert all current records (can be heavy, but safe for small datasets)
+  try {
+    const payload = records.map(toDbRow);
+    // chunk to avoid huge requests
+    const chunkSize = 200;
+    for (let i = 0; i < payload.length; i += chunkSize) {
+      const chunk = payload.slice(i, i + chunkSize);
+      const res = await fetch(SUPABASE_REST_BASE + "?on_conflict=id", {
+        method: "POST",
+        headers: SUPABASE_HEADERS(),
+        body: JSON.stringify(chunk)
+      });
+      if (!res.ok) throw new Error("Supabase full sync failed");
+    }
+  } catch {
+    enqueueSupabaseOp({ type: "full_sync" });
+  }
+}
+
+
+// NEW: If an employee type is assigned later, update that type on all existing Supabase rows for that employee
+function mirrorResyncEmployeeTypeToSupabase(fullName) {
+  const nm = String(fullName || "").trim();
+  if (!nm) return;
+  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("PASTE_YOUR")) return;
+
+  // Find all records for this employee in localStorage and re-upsert them to Supabase.
+  // This will populate employment_type for old rows (and keep everything else the same).
+  const list = records.filter(r => ((r.fullName || r.name || "").trim() === nm));
+  if (!list.length) return;
+
+  // Best-effort: upsert in chunks (same logic as full sync, but scoped to one employee)
+  const payload = list.map(toDbRow);
+  const chunkSize = 200;
+
+  (async () => {
+    try {
+      for (let i = 0; i < payload.length; i += chunkSize) {
+        const chunk = payload.slice(i, i + chunkSize);
+        const res = await fetch(SUPABASE_REST_BASE + "?on_conflict=id", {
+          method: "POST",
+          headers: SUPABASE_HEADERS(),
+          body: JSON.stringify(chunk)
+        });
+        if (!res.ok) throw new Error('Supabase employee type resync failed');
+      }
+    } catch {
+      // queue a full sync as a fallback so it will eventually be consistent
+      enqueueSupabaseOp({ type: "full_sync" });
+    }
+  })();
+}
+
+
+/* Init */
+setLoggedInEmployeeName("");
+loadEmployees();
+loadEmployeePins();
+loadRecords();
+updateUI();
+updateAllEmployeeNameLists();
+renderTable();
+updateClock();
+updateEmployeeMonthlyUI();
+
+// Default month/year picker to current month (cross-browser)
+const _now = new Date();
+const _monthSel = document.getElementById("monthlyMonthSelect");
+const _yearSel = document.getElementById("monthlyYearSelect");
+
+// Fill month select (01-12)
+if (_monthSel && _monthSel.options.length <= 1) {
+  const monthLabels = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  monthLabels.forEach((label, idx) => {
+    const v = String(idx + 1).padStart(2, "0");
+    const opt = document.createElement("option");
+    opt.value = v;
+    opt.textContent = label;
+    _monthSel.appendChild(opt);
+  });
+}
+
+// Fill year select (currentYear-5 .. currentYear+2)
+if (_yearSel && _yearSel.options.length <= 1) {
+  const cy = _now.getFullYear();
+  for (let y = cy - 5; y <= cy + 2; y++) {
+    const opt = document.createElement("option");
+    opt.value = String(y);
+    opt.textContent = String(y);
+    _yearSel.appendChild(opt);
+  }
+}
+
+// Set defaults if nothing selected
+if (_monthSel && !_monthSel.value) _monthSel.value = String(_now.getMonth() + 1).padStart(2, "0");
+if (_yearSel && !_yearSel.value) _yearSel.value = String(_now.getFullYear());
+
+setInterval(updateClock, 1000);
+
+document.getElementById("checkInBtn").addEventListener("click", handleCheckIn);
+document.getElementById("checkOutBtn").addEventListener("click", handleCheckOut);
+document.getElementById("pauseBtn").addEventListener("click", handlePause);
+document.getElementById("resumeBtn").addEventListener("click", handleResume);
+document.getElementById("exportBtn").addEventListener("click", exportCSV);
+document.getElementById("exportYearBtn").addEventListener("click", exportYearCSV);
+const csvImportBtn = document.getElementById("csvImportBtn");
+if (csvImportBtn) csvImportBtn.addEventListener("click", importUnifiedCSV);
+document.getElementById("adminLoginBtn").addEventListener("click", handleAdminLogin);
+document.getElementById("adminDateApplyBtn").addEventListener("click", applyAdminDate);
+document.getElementById("changePasswordBtn").addEventListener("click", changePassword);
+document.getElementById("addAbsenceBtn").addEventListener("click", addAbsence);
+document.getElementById("saveEmpTypeBtn").addEventListener("click", handleSaveEmployeeType);
+const addNewEmployeeBtn = document.getElementById("addNewEmployeeBtn");
+if (addNewEmployeeBtn) addNewEmployeeBtn.addEventListener("click", handleAddNewEmployee);
+
+const savePinBtn = document.getElementById("savePinBtn");
+if (savePinBtn) savePinBtn.addEventListener("click", handleSavePin);
+
+const clearPinBtn = document.getElementById("clearPinBtn");
+if (clearPinBtn) clearPinBtn.addEventListener("click", handleClearPin);
+
+const pinEmployeeSelect = document.getElementById("pinEmployeeSelect");
+if (pinEmployeeSelect) pinEmployeeSelect.addEventListener("change", handlePinEmployeeSelectChange);
+
+const quickSelect = document.getElementById("employeeQuickSelect");
+if (quickSelect) {
+  quickSelect.addEventListener("change", () => {
+    const v = quickSelect.value;
+    if (!v) return;
+    const parts = v.trim().split(/\s+/);
+    const first = parts[0] || "";
+    const last = parts.slice(1).join(" ");
+    document.getElementById("firstName").value = first;
+    document.getElementById("lastName").value = last;
+  });
+}
+
+const adminEmployeeFilter = document.getElementById("adminEmployeeFilter");
+if (adminEmployeeFilter) {
+  adminEmployeeFilter.addEventListener("change", renderTable);
+}
+
+const adminTypeFilter = document.getElementById("adminTypeFilter");
+if (adminTypeFilter) {
+  adminTypeFilter.addEventListener("change", renderTable);
+}
+
+const empTypeEmployee = document.getElementById("empTypeEmployee");
+if (empTypeEmployee) {
+  empTypeEmployee.addEventListener("change", () => {
+    const name = empTypeEmployee.value;
+    const currentType = getEmployeeType(name);
+    const typeSelect = document.getElementById("empTypeSelect");
+    if (typeSelect) typeSelect.value = currentType;
+  });
+}
+
+
+
+document.getElementById("viewMonthlyBtn").addEventListener("click", renderMonthlyRecords);
+
+document.getElementById("downloadMonthlyCsvBtn").addEventListener("click", exportMyMonthlyRecordsCSV);
+
+document.getElementById("renameEmployeeBtn").addEventListener("click", handleRenameEmployee);
+
+// Employee monthly login UI
+const employeeLoginBtn = document.getElementById("employeeLoginBtn");
+if (employeeLoginBtn) employeeLoginBtn.addEventListener("click", handleEmployeeLogin);
+
+const employeeLogoutBtn = document.getElementById("employeeLogoutBtn");
+if (employeeLogoutBtn) employeeLogoutBtn.addEventListener("click", handleEmployeeLogout);
+
+const employeeLoginSelect = document.getElementById("employeeLoginSelect");
+if (employeeLoginSelect) {
+  employeeLoginSelect.addEventListener("change", () => {
+    // Clear PIN field on employee change
+    const pin = document.getElementById("employeePinInput");
+    if (pin) pin.value = "";
+  });
+}
+
+// Monthly picker
+const monthlyMonthSelect = document.getElementById("monthlyMonthSelect");
+const monthlyYearSelect = document.getElementById("monthlyYearSelect");
+
+function handleMonthlyPickerChange() {
+  const nm = (getLoggedInEmployeeName() || '').trim();
+  if (nm) renderMonthlyRecords();
+}
+
+if (monthlyMonthSelect) monthlyMonthSelect.addEventListener("change", handleMonthlyPickerChange);
+if (monthlyYearSelect) monthlyYearSelect.addEventListener("change", handleMonthlyPickerChange);
+
+window.editRecord = editRecord;
+window.deleteRecord = deleteRecord;
+</script>
+
+</body>
+</html>
