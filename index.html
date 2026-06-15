@@ -324,7 +324,7 @@
             <th>Mitarbeiter</th>
             <th>Check In</th>
             <th>Check Out</th>
-            <th>Stunden über 8 (Std.)</th>
+            <th>Stunden über 8,5 (Std.)</th>
             <th>Arbeitszeit (Std.)</th>
             <th>Krank (Tage)</th>
             <th>Urlaub (Tage)</th>
@@ -376,7 +376,7 @@
               <th>Typ</th>
               <th>Check In</th>
               <th>Check Out</th>
-              <th>Stunden über 8 (Std.)</th>
+              <th>Stunden über 8,5 (Std.)</th>
               <th>Arbeitszeit (Std.)</th>
               <th>Krank (Tage)</th>
               <th>Urlaub (Tage)</th>
@@ -656,8 +656,8 @@ employment_type: (() => {
       const entryType = (r.entryType || "work");
       if (entryType !== "work") return 0;
       const h = Number(r.totalHours);
-      if (!isFinite(h) || h <= 8) return 0;
-      return h - 8;
+      if (!isFinite(h) || h <= 8.5) return 0;
+      return h - 8.5;
     })(),
 first_name: (r.firstName || "").trim(),
     last_name: (r.lastName || "").trim(),
@@ -758,7 +758,7 @@ setInterval(() => { if (SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("PASTE_
 
 // One-time migration: after adding new DB columns (employment_type / hours_above_8 / sick_days / holiday_days),
 // run a single full sync so existing local records populate those fields in Supabase.
-const SUPABASE_MIGRATION_FLAG = "supabaseMirrorMigration_v2_fields";
+const SUPABASE_MIGRATION_FLAG = "supabaseMirrorMigration_v3_overtime85";
 (async () => {
   try {
     if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("PASTE_YOUR")) return;
@@ -1305,7 +1305,7 @@ function renderTable() {
     let displayName = isPausedOpen ? `${baseName} (pausiert)` : baseName;
     if (!isWork) displayName = `${baseName} (${typeLabel})`;
 
-    const overtime = (isWork && r.totalHours && r.totalHours > 8) ? (r.totalHours - 8) : 0;
+    const overtime = (isWork && r.totalHours && r.totalHours > 8.5) ? (r.totalHours - 8.5) : 0;
 
     const workedHoursCell = (isWork && r.totalHours) ? r.totalHours.toFixed(2) : "-";
     const sickDaysCell = (r.entryType === "sick") ? (getAbsenceDays(r).toFixed(2)) : "-";
@@ -1688,7 +1688,7 @@ function renderMonthlyRecords() {
     if ((r.entryType || "work") === "sick") sickDays += getAbsenceDays(r);
     if ((r.entryType || "work") === "holiday") holidayDays += getAbsenceDays(r);
 
-    const overtime = (isWork && hours > 8) ? (hours - 8) : 0;
+    const overtime = (isWork && hours > 8.5) ? (hours - 8.5) : 0;
     above8 += overtime;
 
     const typeLabel =
@@ -1717,7 +1717,7 @@ function renderMonthlyRecords() {
     `${worked.toFixed(2)} Arbeitsstunden, ` +
     `${sickDays.toFixed(2)} Krankheitstage, ` +
     `${holidayDays.toFixed(2)} Urlaubstage, ` +
-    `${above8.toFixed(2)} Stunden über 8.`;
+    `${above8.toFixed(2)} Stunden über 8,5.`;
 }
 
 function exportMyMonthlyRecordsCSV() {
@@ -1751,7 +1751,7 @@ function exportMyMonthlyRecordsCSV() {
     "Typ",
     "Check In",
     "Check Out",
-    "Stunden über 8 (Std.)",
+    "Stunden über 8,5 (Std.)",
     "Arbeitszeit (Std.)",
     "Krank (Tage)",
     "Urlaub (Tage)"
@@ -1768,7 +1768,7 @@ function exportMyMonthlyRecordsCSV() {
     if ((r.entryType || "work") === "sick") sickDays += getAbsenceDays(r);
     if ((r.entryType || "work") === "holiday") holidayDays += getAbsenceDays(r);
 
-    const overtime = (isWork && hours > 8) ? (hours - 8) : 0;
+    const overtime = (isWork && hours > 8.5) ? (hours - 8.5) : 0;
     above8 += overtime;
 
     const typeLabel =
@@ -1806,7 +1806,7 @@ function exportMyMonthlyRecordsCSV() {
   lines.push("");
 
   lines.push(toCsvLine(["Arbeitsstunden:", worked.toFixed(2)]));
-  lines.push(toCsvLine(["Stunden über 8:", above8.toFixed(2)]));
+  lines.push(toCsvLine(["Stunden über 8,5:", above8.toFixed(2)]));
   lines.push(toCsvLine(["Krankheitstage:", sickDays.toFixed(2)]));
   lines.push(toCsvLine(["Urlaubstage:", holidayDays.toFixed(2)]));
 
@@ -2009,7 +2009,7 @@ function exportCSV() {
       totalWorkedHours += hours;
       perEmpWorked[name] = (perEmpWorked[name] || 0) + hours;
 
-      const ot = hours > 8 ? (hours - 8) : 0;
+      const ot = hours > 8.5 ? (hours - 8.5) : 0;
       totalOvertime += ot;
       perEmpOvertime[name] = (perEmpOvertime[name] || 0) + ot;
     } else if (type === "sick") {
@@ -2025,7 +2025,7 @@ function exportCSV() {
     }
   });
 
-  const header = ["Datum","Mitarbeiter","Beschäftigungsart","Typ","Check In","Check Out","Stunden über 8 (Std.)","Arbeitszeit (Std.)","Krank (Tage)","Urlaub (Tage)"];
+  const header = ["Datum","Mitarbeiter","Beschäftigungsart","Typ","Check In","Check Out","Stunden über 8,5 (Std.)","Arbeitszeit (Std.)","Krank (Tage)","Urlaub (Tage)"];
   const rows = monthRecords.map(r => {
     const displayName = r.fullName || r.name || "";
     const empTypeLabel = getEmployeeTypeLabel(getEmployeeType(displayName));
@@ -2038,7 +2038,7 @@ function exportCSV() {
     const isWork = (r.entryType || "work") === "work";
     const hasTotalHours = (r.totalHours !== null && r.totalHours !== undefined);
     const hours = hasTotalHours ? Number(r.totalHours) : 0;
-    const overtime = (isWork && hours > 8) ? (hours - 8) : 0;
+    const overtime = (isWork && hours > 8.5) ? (hours - 8.5) : 0;
 
     const workedHours = (isWork && hasTotalHours) ? hours : null;
     const sickDaysVal = (r.entryType === "sick") ? getAbsenceDays(r) : null;
@@ -2067,7 +2067,7 @@ function exportCSV() {
   lines.push("");
 
   lines.push(toCsvLine(["Gesamt-Arbeitsstunden diesen Monat:", totalWorkedHours.toFixed(2)]));
-  lines.push(toCsvLine(["Gesamt-Stunden über 8 diesen Monat:", totalOvertime.toFixed(2)]));
+  lines.push(toCsvLine(["Gesamt-Stunden über 8,5 diesen Monat:", totalOvertime.toFixed(2)]));
   lines.push(toCsvLine(["Gesamt-Krankheitstage diesen Monat:", totalSickDays.toFixed(2)]));
   lines.push(toCsvLine(["Gesamt-Urlaubstage diesen Monat:", totalHolidayDays.toFixed(2)]));
   lines.push("");
@@ -2077,7 +2077,7 @@ function exportCSV() {
     "Mitarbeiter",
     "Beschäftigungsart",
     "Arbeitszeit (Std.)",
-    "Stunden über 8 (Std.)",
+    "Stunden über 8,5 (Std.)",
     "Krank (Tage)",
     "Urlaub (Tage)"
   ]));
@@ -2194,7 +2194,7 @@ function exportYearCSV() {
     }
   });
 
-  const header = ["Datum","Mitarbeiter","Beschäftigungsart","Typ","Check In","Check Out","Stunden über 8 (Std.)","Arbeitszeit (Std.)","Krank (Tage)","Urlaub (Tage)","Month"];
+  const header = ["Datum","Mitarbeiter","Beschäftigungsart","Typ","Check In","Check Out","Stunden über 8,5 (Std.)","Arbeitszeit (Std.)","Krank (Tage)","Urlaub (Tage)","Month"];
   const rows = yearRecords.map(r => {
     const m = Number(r.date.split("-")[1]) - 1;
     const displayName = r.fullName || r.name || "";
@@ -2208,7 +2208,7 @@ function exportYearCSV() {
     const isWork = (r.entryType || "work") === "work";
     const hasTotalHours = (r.totalHours !== null && r.totalHours !== undefined);
     const hours = hasTotalHours ? Number(r.totalHours) : 0;
-    const overtime = (isWork && hours > 8) ? (hours - 8) : 0;
+    const overtime = (isWork && hours > 8.5) ? (hours - 8.5) : 0;
     const workedHours = (isWork && hasTotalHours) ? hours : null;
     const sickCell = (r.entryType === "sick") ? getAbsenceDays(r) : null;
     const holidayCell = (r.entryType === "holiday") ? getAbsenceDays(r) : null;
