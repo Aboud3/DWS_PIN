@@ -112,7 +112,7 @@
     #checkOutBtn { background: #b32d2d; color: #fff; }
     #pauseBtn { background: #f59e0b; color: #fff; }
     #resumeBtn { background: #6b7280; color: #fff; }
-    #exportBtn, #exportYearBtn, #changePasswordBtn, #adminDateApplyBtn, #addAbsenceBtn, #saveEmpTypeBtn, #addNewEmployeeBtn, #csvImportBtn, #renameEmployeeBtn {
+    #exportBtn, #exportYearBtn, #changePasswordBtn, #adminDateApplyBtn, #addAbsenceBtn, #addManualWorkBtn, #saveEmpTypeBtn, #addNewEmployeeBtn, #csvImportBtn, #renameEmployeeBtn {
       background: #1f4fcc;
       color: #fff;
     }
@@ -418,6 +418,27 @@
         <input type="number" id="absenceDuration" min="0" step="0.25" style="width:120px;" placeholder="z. B. 1 oder 0,5">
 
         <button id="addAbsenceBtn">Hinzufügen</button>
+      </div>
+
+      <hr>
+
+      <h3>Arbeitszeit manuell hinzufügen</h3>
+      <div class="admin-row">
+        <label for="manualWorkEmployee">Mitarbeiter:</label>
+        <select id="manualWorkEmployee">
+          <option value="">Mitarbeiter auswählen</option>
+        </select>
+
+        <label for="manualWorkDate">Datum:</label>
+        <input type="date" id="manualWorkDate">
+
+        <label for="manualCheckIn">Check In:</label>
+        <input type="time" id="manualCheckIn" style="width:130px;">
+
+        <label for="manualCheckOut">Check Out:</label>
+        <input type="time" id="manualCheckOut" style="width:130px;">
+
+        <button id="addManualWorkBtn">Hinzufügen</button>
       </div>
 
       <hr>
@@ -1200,6 +1221,11 @@ function updateAllEmployeeNameLists() {
     placeholder: '<option value="">Mitarbeiter auswählen</option>'
   });
 
+  // Manual work-time section (admin)
+  fillSelect(document.getElementById("manualWorkEmployee"), {
+    placeholder: '<option value="">Mitarbeiter auswählen</option>'
+  });
+
   // Rename employee section (admin)
   fillSelect(document.getElementById("renameFromEmployee"), {
     placeholder: '<option value="">Mitarbeiter auswählen</option>'
@@ -1504,6 +1530,81 @@ function addAbsence() {
   renderTable();
 
   document.getElementById("absenceDuration").value = "";
+}
+
+
+function addManualWork() {
+  if (!isAdmin) return;
+
+  const select = document.getElementById("manualWorkEmployee");
+  const selectedName = select ? (select.value || "").trim() : "";
+  if (!selectedName) {
+    return alert("Bitte im Bereich „Arbeitszeit manuell hinzufügen“ einen Mitarbeiter auswählen.");
+  }
+
+  const dateISO = (document.getElementById("manualWorkDate").value || "").trim();
+  if (!dateISO) return alert("Bitte ein Datum auswählen.");
+
+  const inStr = (document.getElementById("manualCheckIn").value || "").trim();
+  if (!inStr) return alert("Bitte eine Check-In-Zeit eingeben (HH:MM).");
+
+  const outStr = (document.getElementById("manualCheckOut").value || "").trim();
+
+  function timeToDate(dStr, tStr) {
+    const [h, m] = tStr.split(":").map(Number);
+    const d = new Date(dStr + "T00:00:00");
+    d.setHours(h || 0, m || 0, 0, 0);
+    return d;
+  }
+
+  const { first: firstName, last: lastName } = splitFullName(selectedName);
+
+  const checkInDate = timeToDate(dateISO, inStr);
+  let checkOutISO = null, checkOutTime = null, totalHours = null, workedMillis = 0;
+
+  if (outStr) {
+    const checkOutDate = timeToDate(dateISO, outStr);
+    const diffMs = checkOutDate - checkInDate;
+    if (diffMs <= 0) return alert("Check Out muss nach Check In liegen.");
+    checkOutISO = checkOutDate.toISOString();
+    checkOutTime = outStr;
+    totalHours = diffMs / 3600000;
+    workedMillis = diffMs;
+  }
+
+  records.push({
+    id: Date.now(),
+    firstName,
+    lastName,
+    fullName: selectedName,
+    date: dateISO,
+    entryType: "work",
+    checkIn: checkInDate.toISOString(),
+    checkOut: checkOutISO,
+    checkInTime: inStr,
+    checkOutTime: checkOutTime,
+    totalHours: totalHours,
+    workedMillis: workedMillis,
+    lastStart: null,
+    isPaused: false
+  });
+
+  saveRecords();
+  mirrorUpsertToSupabase(records[records.length - 1]);
+  updateAllEmployeeNameLists();
+
+  // Jump the admin day view to the entered date so the new entry is visible
+  adminSelectedDate = dateISO;
+  const adminDateInput = document.getElementById("adminDate");
+  if (adminDateInput) adminDateInput.value = dateISO;
+
+  renderTable();
+
+  const timeRange = checkOutTime ? (inStr + "–" + checkOutTime) : ("ab " + inStr + " (kein Check Out)");
+  alert("Eintrag erfolgreich hinzugefügt:\n" + selectedName + "\n" + formatDateDE(dateISO) + ", " + timeRange);
+
+  document.getElementById("manualCheckIn").value = "";
+  document.getElementById("manualCheckOut").value = "";
 }
 
 
@@ -2839,6 +2940,8 @@ document.getElementById("adminLoginBtn").addEventListener("click", handleAdminLo
 document.getElementById("adminDateApplyBtn").addEventListener("click", applyAdminDate);
 document.getElementById("changePasswordBtn").addEventListener("click", changePassword);
 document.getElementById("addAbsenceBtn").addEventListener("click", addAbsence);
+const addManualWorkBtn = document.getElementById("addManualWorkBtn");
+if (addManualWorkBtn) addManualWorkBtn.addEventListener("click", addManualWork);
 document.getElementById("saveEmpTypeBtn").addEventListener("click", handleSaveEmployeeType);
 const addNewEmployeeBtn = document.getElementById("addNewEmployeeBtn");
 if (addNewEmployeeBtn) addNewEmployeeBtn.addEventListener("click", handleAddNewEmployee);
